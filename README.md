@@ -1,4 +1,4 @@
-# propulsive-landing
+# AGON 
  Arduino Script for HERMES rocket tests
 
 ## v0
