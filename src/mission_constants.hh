@@ -51,13 +51,13 @@ float buffCountDown;
  * See MPU6050::getAcceleration docstring for options.
  * Current setting is a full-scale range of +/- 8 gee.
  */
-const float LSB_LINEAR = 2048.0;  // (milli-gee/LSB) note documentation gives incorrectly inverted units
+const float LSB_LINEAR = 2048.0;  // (milli-gee/count) note documentation gives incorrectly inverted units
 
 /* LSB value for angular velocity measurements.
  * See MPU6050::getRotation docstring for options.
  * Current setting is a full-scale range of +/-m 250 deg/s.
  */
-const float LSB_ANGULAR = 131.0;  // (deg/s/LSB) note documentation gives incorrectly inverted units
+const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives incorrectly inverted units
 
 /* These bias calibration values account for sensor bias
  * in linear acceleration measurements. Can't be declared
