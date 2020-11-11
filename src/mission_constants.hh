@@ -5,7 +5,7 @@
 
 
 //*****************************************************************************
-//                          PHYSICS CONVERSION FACTORS
+//                             CONVERSION FACTORS
 //*****************************************************************************
 const float DEG_2_RAD = 0.017453292519943295;  // (rad/deg) conversion factor from degrees to radians
 const float RAD_2_DEG = 57.29577951308232;  // (deg/rad) conversion factor from radians to degrees
@@ -45,7 +45,7 @@ bool buffStatus;
 float buffCountDown;
 
 //*****************************************************************************
-//                              HARDWARE-SPECIFIC
+//                                  HARDWARE
 //*****************************************************************************
 /* LSB value for linear acceleration measurements.
  * See MPU6050::getAcceleration docstring for options.
