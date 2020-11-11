@@ -5,6 +5,7 @@
 #include "mission_constants.hh"
 #include "moding.hh"
 #include "MPU6050.h"  // MPU 6050 IMU Library
+#include <Servo.h>  // TODO: what's this?
 #include "Wire.h"  // Arduino library
 
 
@@ -30,12 +31,16 @@ class Workspace
         // flight mode
         Mode mode = STARTUP_STABLE;
 
+        // Thrust-Vector Controller (TVC)
+        Servo tvc_top;  // TODO: add description
+        Servo tvc_x;  // TODO: add description
+        Servo tvc_y;  // TODO: add description
+
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame
         float v_body_wrt_inertial_in_inertial[3] = {0.0, 0.0, 0.0};  // (m/s) velocity of body frame origin wrt inertial frame, components resolved in inertial frame
         float qr_body_wrt_inrt[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame into inertial frame
         float qr_inrt_wrt_body[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming inertial frame into body frame
-
 };
 
 #endif  // __WORKSPACE_HH__
