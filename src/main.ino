@@ -41,7 +41,7 @@ void print_measurements(float a[3], float w[3])
  * to be constant throughout the flight. Bias is used in get_latest_measurements
  * when converting sensor readings to engineering values.
  */
-void calibrate_imu_linear_acceleration(int16_t *IMU_ACC_BIAS)
+void calibrate_imu_linear_acceleration(int16_t *imu_acc_bias[3])
 {
     int num_loops = 2500;  // number of cycles to check measurements for bias
     long a_sums[3] = {0, 0, 0};  // sum of measurements each loop to be averaged
@@ -64,9 +64,9 @@ void calibrate_imu_linear_acceleration(int16_t *IMU_ACC_BIAS)
     a_sums[2] /= num_loops;
 
     // store biases for later use
-    IMU_ACC_BIAS[0] = a_sums[0];
-    IMU_ACC_BIAS[1] = a_sums[1];  // TODO: why does AGON1a have a_sums[1] - imuRange/2?
-    IMU_ACC_BIAS[2] = a_sums[2];
+    *imu_acc_bias[0] = a_sums[0];
+    *imu_acc_bias[1] = a_sums[1];  // TODO: why does AGON1a have a_sums[1] - imuRange/2?
+    *imu_acc_bias[2] = a_sums[2];
 }
 
 /* get_latest_measurements
