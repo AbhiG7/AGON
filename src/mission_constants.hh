@@ -71,6 +71,16 @@ const int G_LED_1 = 4;  // TODO: add description
 const int B_LED_2 = 9;  // TODO: add description
 const int G_LED_2 = 8;  // TODO: add description
 
+/* BLINK INDICES:
+ *   - 0: Rate (Hz)
+ *   - 1-4: A, command for each of Green 1, Blue 1, Green 2, Blue 2
+ *   - 5-8: B, command for each of Green 1, Blue 1, Green 2, Blue 2
+ */
+const int BLINK_0[9] = {1, 1, 0, 1, 0, 0, 0, 0, 0};
+const int BLINK_1[9] = {1, 0, 1, 0, 1, 0, 1, 0, 1};
+const int BLINK_2[9] = {1, 1, 0, 1, 0, 1, 0, 1, 0};
+const int BLINK_3[9] = {1, 0, 1, 0, 1, 0, 1, 0, 1};
+
 // Pyro TODO: more descriptive name?
 const int PYRO_PIN = 22;  // TODO: add description
 

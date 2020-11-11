@@ -14,6 +14,10 @@
 
 using namespace Eigen;
 
+// TODO: what do these do?
+#define CHIPSIZE MB64
+SPIFlash flash(1);
+
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
 
@@ -182,6 +186,30 @@ void setup()
     calibrate_imu_linear_acceleration(*IMU_ACC_BIAS);
 
     // TODO: finish pulling over the rest of AGON1a setup code below this point
+
+    // blink for good luck
+    for (int num_blink_loops = 0; num_blink_loops < 4; num_blink_loops++)
+    {
+        // TODO: what's going on here?
+        ws.blink_master[i] = BLINK_0[i];
+        ws.blink_master[i+9] = BLINK_1[i];
+        ws.blink_master[i+18] = BLINK_2[i];
+        ws.blink_master[i+27] = BLINK_3[i];
+    }
+
+    // set up pyro
+    pinMode(PYRO_PIN, OUTPUT);
+    digitialWrite(PYRO_PIN, LOW);
+
+    // set up controller
+    // TODO: where are these values from and can they be mission constants?
+    ws.x << 0, 0, 0, 0, 0, 0;
+    ws.xControl << 0, 0, 0, 0, 0, 0;
+    ws.Ka << 0.34641, 1.72254, 0.32694, 0, 0, 0, 0, 0, 0, 0.34641, -1.88376, -0.3991;
+    ws.uLast[0] = 0;
+    ws.uLast[1] = 0;
+    
+    ws.calibrate_time = micros();
 }
 
 

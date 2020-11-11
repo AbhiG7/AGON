@@ -20,7 +20,13 @@ class Workspace
         //*****************************************************************************
         //                              LOOP VARIABLES
         //*****************************************************************************
+        // LED blinks TODO: add descriptions to these
+        int blink_master[36];  // TODO: default value?
+        long next_blink;  // TODO: default value?
+        bool blink_flag = false;
+
         // clock time
+        unsigned long calibrate_time = 0;
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         unsigned long dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
 
@@ -35,6 +41,19 @@ class Workspace
         Servo tvc_top;  // TODO: add description
         Servo tvc_x;  // TODO: add description
         Servo tvc_y;  // TODO: add description
+
+        // controller parameters
+        // TODO: what are all these?
+        MatrixXf Ka(2,6);
+        VectorXi x(6); 
+        VectorXf xControl(6); 
+        VectorXf ua(2);
+        float ub[2];
+        float uc[2];
+        MatrixXi A[9];
+        MatrixXi B[9];
+        float maxU = 5*3.14159/180;
+        long uLast[2] = {0, 0};
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame
