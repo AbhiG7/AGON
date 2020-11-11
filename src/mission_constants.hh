@@ -60,9 +60,10 @@ const float LSB_LINEAR = 2048.0;  // (milli-gee/LSB) note documentation gives in
 const float LSB_ANGULAR = 131.0;  // (deg/s/LSB) note documentation gives incorrectly inverted units
 
 /* These bias calibration values account for sensor bias
- * in linear acceleration measurements.
+ * in linear acceleration measurements. Can't be declared
+ * a const since it's calculated on the fly every startup.
  */
-// TODO: add offset vars
+int16_t IMU_ACC_BIAS[3];  // (count) IMU linear acceleration along each axis
 
 // LEDs
 const int B_LED_1 = 6;  // TODO: add description
@@ -85,7 +86,6 @@ const float BETA = 0.95;  // TODO: add description
 const int GEAR = 9;  // TODO: add description
 const float DAMPER = 1.5;  // TODO: add description
 const int TVC_DELAY = 10;  // TODO: add description
-
 
 // TODO: define these quaternions based on IMU installation in rocket
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame
