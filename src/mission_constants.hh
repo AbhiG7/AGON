@@ -49,13 +49,15 @@ float buffCountDown;
 //*****************************************************************************
 /* LSB value for linear acceleration measurements.
  * See MPU6050::getAcceleration docstring for options.
- * Current setting is a full-scale range of +/- 8 gee.
+ * Current setting is a full-scale range of +/- 8 gee,
+ * in main::setup, in call to setFullScaleAccelRange.
  */
 const float LSB_LINEAR = 2048.0;  // (milli-gee/count) note documentation gives incorrectly inverted units
 
 /* LSB value for angular velocity measurements.
  * See MPU6050::getRotation docstring for options.
- * Current setting is a full-scale range of +/-m 250 deg/s.
+ * Current setting is a full-scale range of +/-m 250 deg/s,
+ * in main::setup, in call to setFullScaleGyroRange.
  */
 const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives incorrectly inverted units
 

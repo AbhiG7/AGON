@@ -177,8 +177,8 @@ void setup()
 
     // set up IMU
     ws.imu.initialize();
-    ws.imu.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
-    ws.imu.setFullScaleGyroRange(MPU6050_GYRO_FS_250);
+    ws.imu.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);  // WARNING: changing this will require changing LSB_LINEAR mission constant
+    ws.imu.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  // WARNING: changing this will require changing LSB_ANGULAR mission constant
     ws.imu.CalibrateAccel(30);  // TODO: What is "30"? Can this be made a mission constant?
     ws.imu.CalibrateGyro(30);  // TODO: What is "30"? Can this be made a mission constant?
 
@@ -208,7 +208,7 @@ void setup()
     ws.Ka << 0.34641, 1.72254, 0.32694, 0, 0, 0, 0, 0, 0, 0.34641, -1.88376, -0.3991;
     ws.uLast[0] = 0;
     ws.uLast[1] = 0;
-    
+
     ws.calibrate_time = micros();
 }
 
