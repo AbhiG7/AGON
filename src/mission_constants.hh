@@ -72,7 +72,7 @@ const int B_LED_2 = 9;  // TODO: add description
 const int G_LED_2 = 8;  // TODO: add description
 
 // Pyro TODO: more descriptive name?
-const into PYRO_PIN = 22;  // TODO: add description
+const int PYRO_PIN = 22;  // TODO: add description
 
 // Thrust-Vector Controller (TVC)
 const int TVC_TOP_PIN = 5;  // TODO: add description
