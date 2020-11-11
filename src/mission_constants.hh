@@ -62,7 +62,29 @@ const float LSB_ANGULAR = 131.0;  // (deg/s/LSB) note documentation gives incorr
 /* These bias calibration values account for sensor bias
  * in linear acceleration measurements.
  */
+// TODO: add offset vars
 
+// LEDs
+const int B_LED_1 = 6;  // TODO: add description
+const int G_LED_1 = 4;  // TODO: add description
+const int B_LED_2 = 9;  // TODO: add description
+const int G_LED_2 = 8;  // TODO: add description
+
+// Pyro TODO: more descriptive name?
+const into PYRO_PIN = 22;  // TODO: add description
+
+// Thrust-Vector Controller (TVC)
+const int TVC_TOP_PIN = 5;  // TODO: add description
+const int TVC_X_PIN = 20;  // TODO: add description
+const int TVC_Y_PIN = 21;  // TODO: add description
+
+const int TVC_X_OFFSET = 85;  // TODO: add description
+const int TVC_Y_OFFSET = 83;  // TODO: add description
+
+const float BETA = 0.95;  // TODO: add description
+const int GEAR = 9;  // TODO: add description
+const float DAMPER = 1.5;  // TODO: add description
+const int TVC_DELAY = 10;  // TODO: add description
 
 
 // TODO: define these quaternions based on IMU installation in rocket
