@@ -1,20 +1,20 @@
 #include <cstdint>  // C STD Int library, might not be needed
-// #include <Eigen30.h>  // TODO: what's this and why is it commented-out?
-#include <Eigen313.h>  // TODO: what's this?
+// #include <Eigen30.h>  // another of version of Eigen313.h
+#include <Eigen313.h>  // linear algebra library
 #include "I2Cdev.h"
-#include <LU>  // TODO: what's this?
+#include <LU>  // needed for Eigen313.h to work
 #include "mission_constants.hh"
 #include "moding.hh"
 #include "MPU6050.h"  // MPU 6050 IMU Library
 #include <SH.h>  // TODO: what's this?
-#include <SPIFlash.h>  // TODO: what's this?
+#include <SPIFlash.h>  // flash chip library
 #include "Wire.h"  // Arduino library
 #include "workspace.hh"  // variable storage
 
 
 using namespace Eigen;
 
-// TODO: what do these do?
+// declare flash chip 
 #define CHIPSIZE MB64
 SPIFlash flash(1);
 
@@ -53,7 +53,7 @@ void calibrate_imu_linear_acceleration(int16_t *imu_acc_bias[3])
 
     for (int i = 0; i < num_loops; i++)
     {
-        imu.getMotion6(&ax, &ay, &az, &wx, &wy, &wz);
+        imu.getMotion6(&ax, &az, &ay, &wx, &wy, &wz); //we want to label the vertical axis as z. the MPUs are orientated with y as vertical
         a_sums[0] += ax;
         a_sums[1] += ay;
         a_sums[2] += az;
@@ -116,15 +116,13 @@ void get_latest_measurements(MPU6050 imu, float *a[3], float *w[3], bool debug=f
  *
  * TODO: add docstring
  */
-void tvc_abs(int x, int y, double gamma, int d)
+void send_tvc_signal(int x, int y, double gamma, int d)
 {
-    // TODO: why are x and y in parentheses?
-    // TODO: where are cos and sin defined?
-    double u = (x)*cos(gamma) + (y)*sin(gamma);
-    double v = (y)*cos(gamma) - (x)*sin(gamma);
+    // cos and sin are native to arduino
+    double u = x*cos(gamma) + y*sin(gamma);
+    double v = y*cos(gamma) - x*sin(gamma);
     ws.tvc_y.write(v + TVC_Y_OFFSET);
     ws.tvc_x.write(u + TVC_X_OFFSET);
-    delay(d);  // TODO: why is this delay here?
 }
 
 
@@ -153,20 +151,21 @@ void setup()
         Fastwire::setup(400, true);
     #endif
 
-    flash.begin(9600);  // TODO: what does this do?
-    // flash.eraseChip();  // TODO: what does this do and why is it commented-out?
+    flash.begin(9600);  // begins flash chip at specified baud rate
+    if (eraseFlash)
+        flash.eraseChip();  // erases flash chip
 
     // set initial mission mode
     ws.mode = STARTUP_STABLE;
 
     // set up Thrust-Vector Controller (TVC)
-    ws.tvc_x.attach(TVC_X_PIN);  // TODO: add description
-    ws.tvc_y.attach(TVC_Y_PIN);  // TODO: add description
-    ws.tvc_top.attach(TVC_TOP_PIN);  // TODO: add description
+    ws.tvc_x.attach(TVC_X_PIN);  // attaches declared servo to specified pin
+    ws.tvc_y.attach(TVC_Y_PIN);  // attaches declared servo to specified pin
+    ws.tvc_top.attach(DROP_PIN);  // attaches declared servo to specified pin
 
-    ws.tvc_top.write(10); delay(1000);  // TODO: what is the "10" doing and can it be a mission constant?
+    ws.tvc_top.write(drop_mechanism_hold); delay(1000);  // TODO: what is the "10" doing and can it be a mission constant?
     
-    // TODO: what's going on in this block?
+    // actuate servo along x and then along y axis at startup
     tvc_abs(  0,   0, BETA, TVC_DELAY*100);
     tvc_abs( 30,   0, BETA, TVC_DELAY*100);
     tvc_abs(-30,   0, BETA, TVC_DELAY*100);
@@ -175,39 +174,31 @@ void setup()
     tvc_abs(  0, -30, BETA, TVC_DELAY*100);
     tvc_abs(  0,   0, BETA, TVC_DELAY*100);
 
-    // set up IMU
-    ws.imu.initialize();
-    ws.imu.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);  // WARNING: changing this will require changing LSB_LINEAR mission constant
-    ws.imu.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  // WARNING: changing this will require changing LSB_ANGULAR mission constant
-    ws.imu.CalibrateAccel(30);  // TODO: What is "30"? Can this be made a mission constant?
-    ws.imu.CalibrateGyro(30);  // TODO: What is "30"? Can this be made a mission constant?
+    // set up IMUs
+    ws.imu_0.initialize();
+    ws.imu_0.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);  // WARNING: changing this will require changing LSB_LINEAR mission constant
+    ws.imu_0.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  // WARNING: changing this will require changing LSB_ANGULAR mission constant
+    ws.imu_1.initialize();
+    ws.imu_1.setFullScaleAccelRange(MPU6050_ACCEL_FS_8);  // WARNING: changing this will require changing LSB_LINEAR mission constant
+    ws.imu_1.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  // WARNING: changing this will require changing LSB_ANGULAR mission constant
 
     // calibrate the IMU linear acceleration sensors
     calibrate_imu_linear_acceleration(*IMU_ACC_BIAS);
 
     // TODO: finish pulling over the rest of AGON1a setup code below this point
 
-    // blink for good luck
-    for (int num_blink_loops = 0; num_blink_loops < 4; num_blink_loops++)
-    {
-        // TODO: what's going on here?
-        ws.blink_master[i] = BLINK_0[i];
-        ws.blink_master[i+9] = BLINK_1[i];
-        ws.blink_master[i+18] = BLINK_2[i];
-        ws.blink_master[i+27] = BLINK_3[i];
-    }
+    // TODO: (and not necessarily here) organize blink patterns by mode
 
     // set up pyro
-    pinMode(PYRO_PIN, OUTPUT);
-    digitialWrite(PYRO_PIN, LOW);
+    pinMode(MOTOR_PIN, OUTPUT);
+    digitialWrite(MOTOR_PIN, LOW);
 
     // set up controller
-    // TODO: where are these values from and can they be mission constants?
-    ws.x << 0, 0, 0, 0, 0, 0;
-    ws.xControl << 0, 0, 0, 0, 0, 0;
-    ws.Ka << 0.34641, 1.72254, 0.32694, 0, 0, 0, 0, 0, 0, 0.34641, -1.88376, -0.3991;
-    ws.uLast[0] = 0;
-    ws.uLast[1] = 0;
+    // TODO : move stuff below
+    ws.x << 0, 0, 0, 0, 0, 0; //state vector
+    ws.Ka << 0.34641, 1.72254, 0.32694, 0, 0, 0, 0, 0, 0, 0.34641, -1.88376, -0.3991; //LQR gains
+    ws.uLast[0] = 0;  //last commanded tvc x input
+    ws.uLast[1] = 0; //last commanded tvc y input
 
     ws.calibrate_time = micros();
 }
@@ -273,5 +264,15 @@ void loop()
             break;
         }
     }
+    // TODO: formalize control loop
+    //construct x
+    //construct y
+    ws.u=-ws.K*ws.x;  //calculate tvc input
+    ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)) //calculate next state estimate
+    //send u to tvc
 
+
+    // TODO: add blink
+    // TODO: add data record
+    // TODO: add (somewhere else) data struct
 }

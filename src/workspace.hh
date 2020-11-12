@@ -15,45 +15,47 @@ class Workspace
         //*****************************************************************************
         //                              HARDWARE SETUP
         //*****************************************************************************
-        MPU6050 imu;  // (--) the IMU to read data from
+        MPU6050 imu_0(0x68);  // (--) first IMU to read data from
+        MPU6050 imu_1(0x69);  // (--) second IMU to read data from
 
         //*****************************************************************************
         //                              LOOP VARIABLES
         //*****************************************************************************
         // LED blinks TODO: add descriptions to these
-        int blink_master[36];  // TODO: default value?
-        long next_blink;  // TODO: default value?
-        bool blink_flag = false;
+        int blink_master[36];  // TODO: maybe delay
+        long next_blink;  // the next time (us) when the led colors should switch
+        bool blink_flag = false;  //led colors switch when blink_flag is true
 
         // clock time
-        unsigned long calibrate_time = 0;
+        unsigned long calibrate_time = 0;  //momment main loop starts
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         unsigned long dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
 
         // sensor measurements
-        float a[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
-        float w[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
+        float a_1[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
+        float w_0[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        float w_1[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
 
         // flight mode
         Mode mode = STARTUP_STABLE;
 
-        // Thrust-Vector Controller (TVC)
-        Servo tvc_top;  // TODO: add description
-        Servo tvc_x;  // TODO: add description
-        Servo tvc_y;  // TODO: add description
+        // Servos
+        Servo servo_top;  // servo in the drop mechanism
+        Servo tvc_x;  // servo that actuates TVC around x body axis
+        Servo tvc_y;  // servo that actuates TVC around x body axis
 
         // controller parameters
-        // TODO: what are all these?
-        MatrixXf Ka(2,6);
-        VectorXi x(6); 
-        VectorXf xControl(6); 
-        VectorXf ua(2);
-        float ub[2];
-        float uc[2];
-        MatrixXi A[9];
-        MatrixXi B[9];
-        float maxU = 5*3.14159/180;
-        long uLast[2] = {0, 0};
+        // TODO: define parameters, move to mission constants
+        MatrixXf K(2,6); //LQR -> updates mid flight
+        VectorXi x(6); //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angles
+        VectorXf u(2); //input vector
+        MatrixXf A(36); //dynamics matrix
+        MatrixXf B(12); //input matrix
+        MatrixXf C(24); //Sensor matrix
+        MatrixXf L(24); //Kalman gain
+        float maxU = 5*3.14159/180;  //maximum gimbal angle
+        long uLast[2] = {0, 0};  //commanded servo angle
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame
