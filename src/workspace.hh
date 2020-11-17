@@ -9,6 +9,15 @@
 #include "Wire.h"  // Arduino library
 
 
+/* Workspace
+ *
+ * This class acts as a container for all of the variables which change
+ * throughout the flight. This keeps things tidy by keeping them out of
+ * the top of main.ino. An instance of this class is created at the top
+ * of main.ino.
+ * 
+ * Constant variables should be placed in mission_constants.hh.
+ */
 class Workspace
 {
     public:
