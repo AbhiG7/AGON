@@ -2,6 +2,8 @@
 #define __MISSION_CONSTANTS_HH__
 
 #include <cstdint>
+#include <Eigen313.h>  // linear algebra library
+#include <LU>  // needed for Eigen313.h to work
 
 
 //*****************************************************************************
@@ -105,6 +107,21 @@ const int TVC_DELAY = 2;  // time (in miliseconds) for servo to move 1 deg--> ho
 // TODO: define these quaternions based on IMU installation in rocket
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame
 const float QR_BODY_TO_IMU[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame to IMU frame
+
+
+//control constants
+MatrixXf A_template(36); //dynamics matrix
+MatrixXf B_template(12); //input matrix
+MatrixXf L_template(36); //Kalman gain
+MatrixXf K_template(12); //LQR -> updates mid flight
+MatrixXf C(36); //Sensor matrix
+C=MatrixXd::Identity(6, 6);
+
+//thrust curve
+const float T={30, 9}; //Thrust values (in Newtons)
+const float T_time={0, .33}; //time in the burn when we start to use the corresponding thrust value
+const int T_intervals=2; //how many thrust data points do we have
+
 
 
 #endif  // __MISSION_CONSTANTS_HH__

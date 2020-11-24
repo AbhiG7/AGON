@@ -196,7 +196,6 @@ void setup()
     // set up controller
     // TODO : move stuff below
     ws.x << 0, 0, 0, 0, 0, 0; //state vector
-    ws.Ka << 0.34641, 1.72254, 0.32694, 0, 0, 0, 0, 0, 0, 0.34641, -1.88376, -0.3991; //LQR gains
     ws.uLast[0] = 0;  //last commanded tvc x input
     ws.uLast[1] = 0; //last commanded tvc y input
 
@@ -241,7 +240,9 @@ void loop()
             }
             else
             {
-                // TODO: implement this block
+                //construct x
+                //construct y
+                ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)) //calculate next state
             }
             break;
         }
@@ -254,7 +255,22 @@ void loop()
             }
             else
             {
-                // TODO: implement this block
+                //checks whether the burn time has surpassed the pre-defined burn interval
+                //if so, then updates the control constant by multiplying by the current thrust
+                if (ws.thrust_curve_count+1<T_intervals && ws.t_prev_cycle>(ws.fire_time+T_time[ws.thrust_curve_count+1])*MEGA)
+                {
+                    ws.thrust_curve_count++;
+                    ws.K=K_template*T[ws.thrust_curve_count];
+                    ws.A=A_template*T[ws.thrust_curve_count];
+                    ws.B=B_template*T[ws.thrust_curve_count];
+                    ws.L=L_template*T[ws.thrust_curve_count];
+                }
+                //construct x
+                //construct y
+                ws.u=-ws.K*ws.x; //calculate input
+                ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)); //calculate next state
+                //process u
+                //send u to tvc
             }
             break;
         }
@@ -264,14 +280,6 @@ void loop()
             break;
         }
     }
-    // TODO: formalize control loop
-    //construct x
-    //construct y
-    ws.u=-ws.K*ws.x;  //calculate tvc input
-    ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)) //calculate next state estimate
-    //send u to tvc
-
-
     // TODO: add blink
     // TODO: add data record
     // TODO: add (somewhere else) data struct

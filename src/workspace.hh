@@ -40,6 +40,10 @@ class Workspace
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         unsigned long dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
 
+        //event times
+        unsigned long drop_time=0;
+        unsigned long fire_time=0;
+
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
         float a_1[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
@@ -54,17 +58,18 @@ class Workspace
         Servo tvc_x;  // servo that actuates TVC around x body axis
         Servo tvc_y;  // servo that actuates TVC around x body axis
 
-        // controller parameters
-        // TODO: define parameters, move to mission constants
-        MatrixXf K(2,6); //LQR -> updates mid flight
+        //control vectors
         VectorXi x(6); //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angles
         VectorXf u(2); //input vector
+        float maxU = 5*DEG_2_RAD;  //maximum gimbal angle
+        int uLast[2] = {0, 0};  //commanded servo angle
+
+        //control constants -> these are variable throughout the flight -> multiples of the templates in mission constants
         MatrixXf A(36); //dynamics matrix
         MatrixXf B(12); //input matrix
-        MatrixXf C(24); //Sensor matrix
-        MatrixXf L(24); //Kalman gain
-        float maxU = 5*3.14159/180;  //maximum gimbal angle
-        long uLast[2] = {0, 0};  //commanded servo angle
+        MatrixXf L(36); //Kalman gain
+        MatrixXf K(12); //LQR gain
+        int thrust_curve_count=0; //current index of the thrust curve array
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame
