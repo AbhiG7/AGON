@@ -62,10 +62,12 @@ const float LSB_LINEAR = 2048.0;  // (milli-gee/count) note documentation gives 
 const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives incorrectly inverted units
 
 /* These bias calibration values account for sensor bias
- * in linear acceleration measurements. Can't be declared
- * a const since it's calculated on the fly every startup.
+ * in linear acceleration and angular velocity measurements.
+ * Can't be declared a const since it's calculated
+ * on-the-fly every startup.
  */
-int16_t IMU_ACC_BIAS[3];  // (count) IMU linear acceleration along each axis
+int16_t IMU_LIN_ACC_BIAS[3];  // (count) IMU linear acceleration bias along each axis
+int16_t IMU_ANG_VEL_BIAS[3];  // (count) IMU angular velocity bias about each axis
 
 // LEDs 
 //TODO:modify values
