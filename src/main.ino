@@ -2,7 +2,7 @@
 // #include <Eigen30.h>  // another of version of Eigen313.h
 #include <Eigen313.h>  // linear algebra library
 #include "I2Cdev.h"
-#include <LU>  // needed for Eigen313.h to work
+#include <LU>  // Eigen313 dependency
 #include "mission_constants.hh"
 #include "moding.hh"
 #include "MPU6050.h"  // MPU 6050 IMU Library
@@ -45,21 +45,24 @@ void print_measurements(float a[3], float w[3])
  * to be constant throughout the flight. Bias is used in get_latest_measurements
  * when converting sensor readings to engineering values.
  */
-void calibrate_imu_linear_acceleration(int16_t *imu_acc_bias[3])
+void calibrate_imu_linear_acceleration(int16_t *imu_lin_acc_bias[3], int16_t *imu_ang_vel_bias[3])
 {
     int num_loops = 2500;  // number of cycles to check measurements for bias
-    long a_sums[3] = {0, 0, 0};  // sum of measurements each loop to be averaged
+    long a_sums[3] = {0, 0, 0};  // sum of linear acceleration measurements each loop to be averaged
+    long w_sums[3] = {0, 0, 0};  // sum of angular velocity measurements each loop to be averaged
+    
     int16_t ax, ay, az, wx, wy, wz;  // temp loop vars
 
     for (int i = 0; i < num_loops; i++)
     {
-        imu.getMotion6(&ax, &az, &ay, &wx, &wy, &wz); //we want to label the vertical axis as z. the MPUs are orientated with y as vertical
+        imu.getMotion6(&ax, &ay, &az, &wx, &wy, &wz); //we want to label the vertical axis as z. the MPUs are orientated with y as vertical
         a_sums[0] += ax;
         a_sums[1] += ay;
         a_sums[2] += az;
-        
-        // TODO: do we need to zero the values of ax, ay, and az every loop?
-        // TODO: why aren't we also calculating an agular velocity bias?
+
+        w_sums[0] += wx;
+        w_sums[1] += wy;
+        w_sums[2] += wz;
     }
 
     // find average bias
@@ -67,10 +70,18 @@ void calibrate_imu_linear_acceleration(int16_t *imu_acc_bias[3])
     a_sums[1] /= num_loops;
     a_sums[2] /= num_loops;
 
+    w_sums[0] /= num_loops;
+    w_sums[1] /= num_loops;
+    w_sums[2] /= num_loops;
+
     // store biases for later use
-    *imu_acc_bias[0] = a_sums[0];
-    *imu_acc_bias[1] = a_sums[1];  // TODO: why does AGON1a have a_sums[1] - imuRange/2?
-    *imu_acc_bias[2] = a_sums[2];
+    *imu_lin_acc_bias[0] = a_sums[0];
+    *imu_lin_acc_bias[1] = a_sums[1];
+    *imu_lin_acc_bias[2] = a_sums[2];
+
+    *imu_ang_vel_bias[0] = w_sums[0];
+    *imu_ang_vel_bias[1] = w_sums[1];
+    *imu_ang_vel_bias[2] = w_sums[2];
 }
 
 /* get_latest_measurements
@@ -99,12 +110,13 @@ void get_latest_measurements(MPU6050 imu, float *a[3], float *w[3], bool debug=f
     imu.getMotion6(&ax, &ay, &az, &wx, &wy, &wz);  // stores measurements in temp vars
 
     // CONVERT AND STORE DATA
-    *a[0] = (ax - IMU_ACC_BIAS[0])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) x-axis acceleration
-    *a[1] = (ay - IMU_ACC_BIAS[1])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) y-axis acceleration
-    *a[2] = (az - IMU_ACC_BIAS[2])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) z-axis acceleration
-    *w[0] = wx*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) x-axis angular velocity
-    *w[1] = wy*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) y-axis angular velocity
-    *w[2] = wz*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) z-axis angular velocity
+    *a[0] = (ax - IMU_LIN_ACC_BIAS[0])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) x-axis acceleration
+    *a[1] = (ay - IMU_LIN_ACC_BIAS[1])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) y-axis acceleration
+    *a[2] = (az - IMU_LIN_ACC_BIAS[2])*LSB_LINEAR*1000*G_2_MS2;  // (m/s^2) z-axis acceleration
+
+    *w[0] = (wx - IMU_ANG_VEL_BIAS)*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) x-axis angular velocity
+    *w[1] = (wy - IMU_ANG_VEL_BIAS)*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) y-axis angular velocity
+    *w[2] = (wz - IMU_ANG_VEL_BIAS)*LSB_ANGULAR*DEG_2_RAD;  // (rad/s) z-axis angular velocity
 
     if (debug) {
         print_measurements(a, w);
@@ -183,7 +195,7 @@ void setup()
     ws.imu_1.setFullScaleGyroRange(MPU6050_GYRO_FS_250);  // WARNING: changing this will require changing LSB_ANGULAR mission constant
 
     // calibrate the IMU linear acceleration sensors
-    calibrate_imu_linear_acceleration(*IMU_ACC_BIAS);
+    calibrate_imu_linear_acceleration(*IMU_LIN_ACC_BIAS, *IMU_ANG_VEL_BIAS);
 
     // TODO: finish pulling over the rest of AGON1a setup code below this point
 
