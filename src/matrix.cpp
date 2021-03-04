@@ -1,125 +1,125 @@
 #include <iostream>
 using namespace std;
 
-float ** mMult(float ** A, float ** B)
+class Matrix
 {
-    const int m = sizeof(A) / sizeof(A[0]);
-    const int n = sizeof(A[0]) / sizeof(A[0][0]);
-    const int p = sizeof(B[0]) / sizeof(B[0][0]);
-    if (n==sizeof(B) / sizeof(B[0]))
-    {
-        float ** C;
-        C = new float*[m];
-        for (int i = 0;  i < m; i++)
-        {
-            C[i]=new float[p];
-            for (int j = 0; j < p; j++)
-            {
-                C[i][j]=0;
-                for (int k = 0; k < n; k++) 
-                {
-                    C[i][j] += A[i][k] * B[k][j];
-                }
-            }
-        }
-        return C;
-    }
-    else
-    {
+    public:
+        int rows;
+        int columns;
+        float * values;
 
-    }
+        Matrix(int row_number, int column_number, float * mat_values)
+        {
+            rows=row_number;
+            columns=column_number;
+            values=mat_values;
+        }
+
+        float select(int row, int column)
+        {
+            return values[(row-1)*columns+(column-1)];
+        }
+};
+
+float * m_sub_helper(float * A, float * B, int elements) {
+	float * C;
+	C = new float[elements];
+	for (int i = 0; i < elements; i++) {
+		C[i] = A[i] - B[i];
+	}
+	return C;
 }
 
-float ** mScale(float scalar, float ** A)
-{
-    const int m = sizeof(A) / sizeof(A[0]);
-    const int n = sizeof(A[0]) / sizeof(A[0][0]);
-    float ** C;
-    C = new float*[m];
-    for (int i = 0;  i < m; i++)
-    {
-        C[i]=new float[n];
-        for (int j = 0; j < n; j++)
-        {
-            C[i][j]=scalar*A[i][j];
-        }
-    }
-    return C;
+float * s_mult_helper(float * A, float rho, int elements) {
+	float * C;
+	C = new float[elements];
+	for (int i = 0; i < elements; i++) {
+		C[i] = A[i] * rho;
+	}
+	return C;
 }
 
-float ** mAdd(float ** A, float ** B)
-{
-    const int m_a = sizeof(A) / sizeof(A[0]);
-    const int n_a = sizeof(A[0]) / sizeof(A[0][0]);
-    const int m_b = sizeof(B) / sizeof(B[0]);
-    const int n_b = sizeof(B[0]) / sizeof(B[0][0]);
-    if ((n_a==n_b) && (m_a==m_b))
-    {
-        float ** C;
-        C = new float*[m_a];
-        for (int i = 0;  i < m_a; i++)
-        {
-            C[i]=new float[n_a];
-            for (int j = 0; j < n_a; j++)
-            {
-                C[i][j]=A[i][j]+B[i][j];
-            }
-        }
-        return C;
-    }
-    else
-    {
-
-    }
+float * m_mult_helper(float * A, float * B, int m, int n, int p) {
+	float * C;
+	C = new float[m*p];
+	for (int i = 0;  i < m; i++)
+	{
+		for (int j = 0; j < p; j++)
+		{
+			C[i*p + j] = 0;
+			for (int k = 0; k < n; k++) 
+			{
+				C[i*p + j] += A[i*n + k] * B[j + p * k];
+			}
+		}
+	}
+	return C;
 }
 
-float ** mSubtract(float ** A, float ** B)
-{
-    const int m_a = sizeof(A) / sizeof(A[0]);
-    const int n_a = sizeof(A[0]) / sizeof(A[0][0]);
-    const int m_b = sizeof(B) / sizeof(B[0]);
-    const int n_b = sizeof(B[0]) / sizeof(B[0][0]);
-    if ((n_a==n_b) && (m_a==m_b))
-    {
-        float ** C;
-        C = new float*[m_a];
-        for (int i = 0;  i < m_a; i++)
-        {
-            C[i]=new float[n_a];
-            for (int j = 0; j < n_a; j++)
-            {
-                C[i][j]=A[i][j]-B[i][j];
-            }
-        }
-        return C;
-    }
-    else
-    {
-
-    }
+float * m_add_helper(float * A, float * B, int elements) {
+	float * C;
+	C = new float[elements];
+	for (int i = 0; i < elements; i++) {
+		C[i] = A[i] + B[i];
+	}
+	return C;
 }
 
-float ** create_matrix(float * values, int rows, int columns)
+Matrix mMult(Matrix A, Matrix B)
 {
-    float ** C;
-    for (int i=0; i<rows; i++)
+    const int m=A.rows;
+    const int p=B.columns;
+    const int n=A.columns;
+    float * values;
+    if (A.columns==B.rows)
     {
-        C = new float*[columns];
-        for (int j = 0; j < columns; j++)
-        {
-            C[i][j]=values[i*columns+j];
-        }
+        values=m_mult_helper(A.values, B.values, m, n, p);
     }
-    return C;
+    return Matrix(m, p, values);
 }
 
-void display_matrix(float ** A, int rows, int columns)
+Matrix mAdd(Matrix A, Matrix B)
 {
-    for (int i=0; i<rows; i++)
+    const int m_a=A.rows;
+    const int n_b=B.columns;
+    const int n_a=A.columns;
+    const int m_b=B.rows;
+    float * values;
+    if ((m_a==m_b)&&(n_a==n_b))
     {
-        for (int j = 0; j < columns; j++)
+        values=m_add_helper(A.values, B.values, m_a*n_a);
+    }
+    return Matrix(m_a, n_a, values);
+}
+
+Matrix sMult(Matrix A, float k)
+{
+    float * values;
+    values=s_mult_helper(A.values, k, A.rows*A.columns);
+    return Matrix(A.rows, A.columns, values);
+}
+
+Matrix mSubtract(Matrix A, Matrix B)
+{
+    const int m_a=A.rows;
+    const int n_b=B.columns;
+    const int n_a=A.columns;
+    const int m_b=B.rows;
+    float * values;
+    if ((m_a==m_b)&&(n_a==n_b))
+    {
+        values=m_sub_helper(A.values, B.values, m_a*n_a);
+    }
+    return Matrix(m_a, n_a, values);
+}
+
+void display_matrix(Matrix A)
+{
+    for (int i=0; i<A.rows; i++)
+    {
+        for (int j = 0; j < A.columns; j++)
         {
-            cout << A[i][j] << "    ";
+            cout << A.select(i+1,j+1) << "    ";
         }
         cout << "\n";
     }
@@ -127,22 +127,13 @@ void display_matrix(float ** A, int rows, int columns)
 
 int main()
 {
-    float** A;
-    float** B;
-    float** C;
-
-    A=new float *[2];
-    A[0]=new float [3] {1, 2, 3};
-    A[1]=new float [3] {4, 5, 6};
-
-    //A[0]=new float [] {1, 2, 3}; 
-    //A[1]={4, 5, 6};
-    //B[0]={7, 8}; 
-    //B[1]={9, 10}; 
-    //B[2]={11, 12}; 
-
-
-    C=mMult(A, B);
-    display_matrix(C, 2, 2);
+    float d_values [6]={1, 1,1, 1, 1, 1};
+    Matrix D=Matrix(2, 3, d_values);
+    float a_values [6] = {1, 2, 3, 4, 5, 6};
+    Matrix A=Matrix(2, 3, a_values);
+    float b_values [6] = {7, 8, 9, 10, 11, 12};
+    Matrix B=Matrix(3, 2, b_values);
+    Matrix C=mMult(mAdd(A,D), B);
+    display_matrix(C);
     return 0;
 }
