@@ -1,26 +1,8 @@
 #include <iostream>
+#include "matrix.hh"
 using namespace std;
 
-class Matrix
-{
-    public:
-        int rows;
-        int columns;
-        float * values;
-
-        Matrix(int row_number, int column_number, float * mat_values)
-        {
-            rows=row_number;
-            columns=column_number;
-            values=mat_values;
-        }
-
-        float select(int row, int column)
-        {
-            return values[(row-1)*columns+(column-1)];
-        }
-};
-
+//matrix subtraction helper function
 float * m_sub_helper(float * A, float * B, int elements) {
 	float * C;
 	C = new float[elements];
@@ -30,6 +12,7 @@ float * m_sub_helper(float * A, float * B, int elements) {
 	return C;
 }
 
+//scalar multiplication helper function
 float * s_mult_helper(float * A, float rho, int elements) {
 	float * C;
 	C = new float[elements];
@@ -39,6 +22,7 @@ float * s_mult_helper(float * A, float rho, int elements) {
 	return C;
 }
 
+//matrix multiplication helper function
 float * m_mult_helper(float * A, float * B, int m, int n, int p) {
 	float * C;
 	C = new float[m*p];
@@ -56,6 +40,7 @@ float * m_mult_helper(float * A, float * B, int m, int n, int p) {
 	return C;
 }
 
+//matrix addition helper function
 float * m_add_helper(float * A, float * B, int elements) {
 	float * C;
 	C = new float[elements];
@@ -65,6 +50,7 @@ float * m_add_helper(float * A, float * B, int elements) {
 	return C;
 }
 
+//matrix multiplication
 Matrix mMult(Matrix A, Matrix B)
 {
     const int m=A.rows;
@@ -78,6 +64,7 @@ Matrix mMult(Matrix A, Matrix B)
     return Matrix(m, p, values);
 }
 
+//matrix addition function
 Matrix mAdd(Matrix A, Matrix B)
 {
     const int m_a=A.rows;
@@ -92,6 +79,7 @@ Matrix mAdd(Matrix A, Matrix B)
     return Matrix(m_a, n_a, values);
 }
 
+//scalar multiplication function
 Matrix sMult(Matrix A, float k)
 {
     float * values;
@@ -99,7 +87,8 @@ Matrix sMult(Matrix A, float k)
     return Matrix(A.rows, A.columns, values);
 }
 
-Matrix mSubtract(Matrix A, Matrix B)
+//matrix subtraction function
+Matrix mSub(Matrix A, Matrix B)
 {
     const int m_a=A.rows;
     const int n_b=B.columns;
@@ -123,17 +112,4 @@ void display_matrix(Matrix A)
         }
         cout << "\n";
     }
-}
-
-int main()
-{
-    float d_values [6]={1, 1,1, 1, 1, 1};
-    Matrix D=Matrix(2, 3, d_values);
-    float a_values [6] = {1, 2, 3, 4, 5, 6};
-    Matrix A=Matrix(2, 3, a_values);
-    float b_values [6] = {7, 8, 9, 10, 11, 12};
-    Matrix B=Matrix(3, 2, b_values);
-    Matrix C=mMult(mAdd(A,D), B);
-    display_matrix(C);
-    return 0;
 }
