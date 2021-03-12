@@ -2,8 +2,7 @@
 #define __MISSION_CONSTANTS_HH__
 
 #include <cstdint>
-#include <Eigen313.h>  // linear algebra library
-#include <LU>  // needed for Eigen313.h to work
+#include "matrix.hh"
 
 
 //*****************************************************************************
@@ -36,6 +35,7 @@ enum Mode {
 const int COUNTDOWN_WAIT = 10;  // (TODO: units) TODO: what is this?
 const int CALIBRATE_TIME = 0;  // (TODO: units) TODO: what is this?
 
+/**
 // z-acceleration > fireGoal+fireBuffer continuously for fireTBuffer before switching to 
 const float fireTBuffer = 0.01*MEGA;  // (us) TODO: what is this?
 const float fireBuffer = 3276.0/2.0/16.0;  // (m/s^2) ~0.25 TODO: what is this
@@ -45,6 +45,7 @@ const float fireGoal = 0.0;  // -g TODO: what is this?
 const float landTBuffer = 0.5*MEGA;  // (TODO: units) TODO: what is this? 
 const float landBuffer = 3276.0/2.0/8.0; // (TODO: units) TODO: what is this?
 const float landGoal = 0.0;  // (TODO: units) TODO: what is this?
+*/
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -78,52 +79,60 @@ const int G_LED_1 = 4;  // Green LED1 Pin
 const int B_LED_2 = 9;  // Blue LED2 Pin
 const int G_LED_2 = 8;  // Green LED2 Pin
 
-/* BLINK INDICES:  
- *   - 0: Rate (Hz)
- *   - 1-4: A, command for each of Green 1, Blue 1, Green 2, Blue 2
- *   - 5-8: B, command for each of Green 1, Blue 1, Green 2, Blue 2
- */
-//TODO:debug on board
-const int BLINK_0[9] = {1, 1, 0, 1, 0, 0, 0, 0, 0};
-const int BLINK_1[9] = {1, 0, 1, 0, 1, 0, 1, 0, 1};
-const int BLINK_2[9] = {1, 1, 0, 1, 0, 1, 0, 1, 0};
-const int BLINK_3[9] = {1, 0, 1, 0, 1, 0, 1, 0, 1};
-
 const int MOTOR_PIN = 22;  // Pin that signals motor to fire
 
 // Thrust-Vector Controller (TVC)  //TODO: modify values
 const int DROP_PIN = 5;  // pin for the servo in the drop mechanism
 const int TVC_X_PIN = 20;  // pin for the servo that actuates TVC around x body axis
 const int TVC_Y_PIN = 21;  // pin for the servo that actuates TVC around y body axis
-const int GEAR = 9;  // gearing ratio of the servo to the TVC
+const float GEAR = 9;  // gearing ratio of the servo to the TVC
 
 const int drop_mechanism_hold=10; //TODO: modify after assembly
 const int drop_mechanism_release=120; //TODO: modify after assembly
 
-const int TVC_X_OFFSET = 85;  // TODO: add description
-const int TVC_Y_OFFSET = 83;  // TODO: add description
+const float TVC_X_OFFSET = 85;  // TODO: add description
+const float TVC_Y_OFFSET = 83;  // TODO: add description
 
 const float BETA = 0.95;  // angle (rad) that corrects for misalignment between body frame and TVC frame
-const int TVC_DELAY = 2;  // time (in miliseconds) for servo to move 1 deg--> how much delay between servo commands
+const int TVC_DELAY = 4;  // time (in miliseconds) for servo to move 1 deg--> how much delay between servo commands
 
 // TODO: define these quaternions based on IMU installation in rocket
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame
 const float QR_BODY_TO_IMU[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame to IMU frame
 
+const float THRUST=10; //TODO: make exact
+const float MOMENT_ARM=.265; //TODO: make exact
+const float MOMENT_INERTIA_XX=1; //TODO: make exact
+const float MOMENT_INERTIA_YY=1;//TODO: make exact
 
-//control constants
-MatrixXf A_template(36); //dynamics matrix
-MatrixXf B_template(12); //input matrix
-MatrixXf L_template(36); //Kalman gain
-MatrixXf K_template(12); //LQR -> updates mid flight
-MatrixXf C(36); //Sensor matrix
-C=MatrixXd::Identity(6, 6);
+//control constants TODO: fill these out
+float A_VALUES [36] =   {0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0}; //dynamics matrix
+ 
+ float B_VALUES [12] =  {0, 0, 
+                        0, 0,
+                        0, 0,
+                        0, 0,
+                        0, 0,
+                        0, 0}; //input matrix
+ 
+ float K_VALUES [12] =  {0,0,0,0,0,0,
+                        0,0,0,0,0,0}; //controller gain
 
-//thrust curve
-const float T={30, 9}; //Thrust values (in Newtons)
-const float T_time={0, .33}; //time in the burn when we start to use the corresponding thrust value
-const int T_intervals=2; //how many thrust data points do we have
-
+ float C_VALUES [24] =  {0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0}; //sensor matrix
+ 
+ float L_VALUES [24] =  {0, 0, 0, 0,
+                        0, 0, 0, 0,
+                        0, 0, 0, 0,
+                        0, 0, 0, 0}; //kalman gain
 
 
 #endif  // __MISSION_CONSTANTS_HH__

@@ -53,8 +53,10 @@ class Workspace
         Servo tvc_y;  // servo that actuates TVC around x body axis
 
         //control vectors
-        //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angles
-        //input vector
+        Matrix x; //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angle
+        Matrix u; //input vector
+        Matrix y; //output vector
+
         float max_u = 5*DEG_2_RAD;  //maximum gimbal angle
         float last_u[2] = {0, 0};  //commanded servo angle
 

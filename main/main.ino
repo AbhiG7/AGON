@@ -1,15 +1,13 @@
 #include <cstdint>  // C STD Int library, might not be needed
 // #include <Eigen30.h>  // another of version of Eigen313.h
-#include <Eigen313.h>  // linear algebra library
 #include "I2Cdev.h"
-#include <LU>  // Eigen313 dependency
 #include "mission_constants.hh"
 #include "moding.hh"
-#include "MPU6050.h"  // MPU 6050 IMU Library
 #include <SH.h>  // TODO: what's this?
 #include <SPIFlash.h>  // flash chip library
 #include "Wire.h"  // Arduino library
 #include "workspace.hh"  // variable storage
+#include "matrix.hh"
 
 
 using namespace Eigen;
@@ -207,7 +205,11 @@ void setup()
 
     // set up controller
     // TODO : move stuff below
-    ws.x << 0, 0, 0, 0, 0, 0; //state vector
+    float * initialize={0, 0, 0, 0, 0, 0};
+    ws.x=Matrix(6, 1, initialize);
+    ws.y=Matrix(4, 1, initialize);
+    ws.u=Matrix(2, 1, initialize);
+
     ws.uLast[0] = 0;  //last commanded tvc x input
     ws.uLast[1] = 0; //last commanded tvc y input
 
@@ -269,17 +271,10 @@ void loop()
             {
                 //checks whether the burn time has surpassed the pre-defined burn interval
                 //if so, then updates the control constant by multiplying by the current thrust
-                if (ws.thrust_curve_count+1<T_intervals && ws.t_prev_cycle>(ws.fire_time+T_time[ws.thrust_curve_count+1])*MEGA)
-                {
-                    ws.thrust_curve_count++;
-                    ws.K=K_template*T[ws.thrust_curve_count];
-                    ws.A=A_template*T[ws.thrust_curve_count];
-                    ws.B=B_template*T[ws.thrust_curve_count];
-                    ws.L=L_template*T[ws.thrust_curve_count];
-                }
                 //construct x
                 //construct y
-                ws.u=-ws.K*ws.x; //calculate input
+                ws.u=sMult(mMult(), -1); //calculate input
+                ws.x=mAdd(ws.x, sMult(mAdd(mAdd(), ), ws.dt));
                 ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)); //calculate next state
                 //process u
                 //send u to tvc
