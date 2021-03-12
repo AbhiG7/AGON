@@ -4,7 +4,6 @@
 #include <cstdint>
 #include "mission_constants.hh"
 #include "moding.hh"
-#include "MPU6050.h"  // MPU 6050 IMU Library
 #include <Servo.h>  // TODO: what's this?
 #include "Wire.h"  // Arduino library
 
@@ -30,11 +29,6 @@ class Workspace
         //*****************************************************************************
         //                              LOOP VARIABLES
         //*****************************************************************************
-        // LED blinks TODO: add descriptions to these
-        int blink_master[36];  // TODO: maybe delay
-        long next_blink;  // the next time (us) when the led colors should switch
-        bool blink_flag = false;  //led colors switch when blink_flag is true
-
         // clock time
         unsigned long calibrate_time = 0;  //momment main loop starts
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
@@ -59,17 +53,10 @@ class Workspace
         Servo tvc_y;  // servo that actuates TVC around x body axis
 
         //control vectors
-        VectorXi x(6); //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angles
-        VectorXf u(2); //input vector
-        float maxU = 5*DEG_2_RAD;  //maximum gimbal angle
-        int uLast[2] = {0, 0};  //commanded servo angle
-
-        //control constants -> these are variable throughout the flight -> multiples of the templates in mission constants
-        MatrixXf A(36); //dynamics matrix
-        MatrixXf B(12); //input matrix
-        MatrixXf L(36); //Kalman gain
-        MatrixXf K(12); //LQR gain
-        int thrust_curve_count=0; //current index of the thrust curve array
+        //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angles
+        //input vector
+        float max_u = 5*DEG_2_RAD;  //maximum gimbal angle
+        float last_u[2] = {0, 0};  //commanded servo angle
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame
