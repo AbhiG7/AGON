@@ -126,10 +126,10 @@ Matrix B=Matrix(6, 2, B_VALUES);
                         0,0,0,0,0,0}; //controller gain
 Matrix K=Matrix(2, 6, K_VALUES);
 
- float C_VALUES [24] =  {0,0,0,0,0,0,
-                        0,0,0,0,0,0,
-                        0,0,0,0,0,0,
-                        0,0,0,0,0,0}; //sensor matrix
+ float C_VALUES [24] =  {1,0,0,0,0,0,
+                        0,0,1,0,0,0,
+                        0,0,0,1,0,0,
+                        0,0,0,0,0,1}; //sensor matrix
 Matrix C=Matrix(4, 6, C_VALUES);
  
  float L_VALUES [24] =  {0, 0, 0, 0,

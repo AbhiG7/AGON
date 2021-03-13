@@ -25,7 +25,7 @@ class Matrix
         }
         Matrix operator+(Matrix);
         Matrix operator-(Matrix);
-        Matrix scale (float k);
+        Matrix scale (float);
         Matrix operator*(Matrix);
 };
 

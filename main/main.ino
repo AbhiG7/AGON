@@ -205,10 +205,12 @@ void setup()
 
     // set up controller
     // TODO : move stuff below
-    float * initialize={0, 0, 0, 0, 0, 0};
-    ws.x=Matrix(6, 1, initialize);
-    ws.y=Matrix(4, 1, initialize);
-    ws.u=Matrix(2, 1, initialize);
+    float * initialize_6={0, 0, 0, 0, 0, 0};
+    float * initialize_4={0, 0, 0, 0};
+    float * initialize_2={0, 0};
+    ws.x=Matrix(6, 1, initialize_6);
+    ws.y=Matrix(4, 1, initialize_4);
+    ws.u=Matrix(2, 1, initialize_2);
 
     ws.uLast[0] = 0;  //last commanded tvc x input
     ws.uLast[1] = 0; //last commanded tvc y input
@@ -273,9 +275,9 @@ void loop()
                 //if so, then updates the control constant by multiplying by the current thrust
                 //construct x
                 //construct y
-                ws.u=sMult(mMult(), -1); //calculate input
+                ws.u=(K*ws.x).scale(-1); //calculate input
                 ws.x=mAdd(ws.x, sMult(mAdd(mAdd(), ), ws.dt));
-                ws.x+=ws.dt*(ws.A*ws.x+ws.B*ws.u+ws.L*(ws.y-ws.C*ws.x)); //calculate next state
+                ws.x=ws.x+((A*ws.x)+(B*ws.u)+(L*(ws.y-(C*ws.x)))).scale(ws.dt); //calculate next state
                 //process u
                 //send u to tvc
             }
