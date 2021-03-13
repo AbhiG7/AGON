@@ -27,8 +27,12 @@ const bool eraseFlash=false;
 enum Mode {
     STARTUP_STABLE = 0,
     NAVIGATION = 1,
-    BURN_BABY_BURN = 2,
-    SHUTDOWN_STABLE = 3
+    COUNTDOWN = 2,
+    FINAL_COUNTDOWN = 3,
+    PREP_TVC = 4,
+    BURN_BABY_BURN = 5,
+    TRANSFER_DATA = 6,
+    SHUTDOWN_STABLE =7
 };
 
 // timing

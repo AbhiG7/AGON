@@ -48,7 +48,6 @@ class Workspace
         Mode mode = STARTUP_STABLE;
 
         // Servos
-        Servo servo_top;  // servo in the drop mechanism
         Servo tvc_x;  // servo that actuates TVC around x body axis
         Servo tvc_y;  // servo that actuates TVC around x body axis
 
