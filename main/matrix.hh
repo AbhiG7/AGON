@@ -23,12 +23,16 @@ class Matrix
         {
             return values[(row-1)*columns+(column-1)];
         }
+        Matrix operator+(Matrix);
+        Matrix operator-(Matrix);
+        Matrix scale (float k);
+        Matrix operator*(Matrix);
 };
 
-Matrix mMult(Matrix, Matrix);
-Matrix mAdd(Matrix, Matrix);
-Matrix sMult(Matrix, float);
-Matrix mSub(Matrix, Matrix);
+//Matrix mMult(Matrix, Matrix);
+//Matrix mAdd(Matrix, Matrix);
+//Matrix sMult(Matrix, float);
+//Matrix mSub(Matrix, Matrix);
 void display_matrix(Matrix);
 
 #endif  // __MODING_HH__

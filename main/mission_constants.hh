@@ -111,8 +111,8 @@ float A_VALUES [36] =   {0,0,0,0,0,0,
                         0,0,0,0,0,0,
                         0,0,0,0,0,0,
                         0,0,0,0,0,0,
-                        0,0,0,0,0,0,
                         0,0,0,0,0,0}; //dynamics matrix
+Matrix A=Matrix(6, 6, A_VALUES);        
  
  float B_VALUES [12] =  {0, 0, 
                         0, 0,
@@ -120,19 +120,25 @@ float A_VALUES [36] =   {0,0,0,0,0,0,
                         0, 0,
                         0, 0,
                         0, 0}; //input matrix
+Matrix B=Matrix(6, 2, B_VALUES);
  
  float K_VALUES [12] =  {0,0,0,0,0,0,
                         0,0,0,0,0,0}; //controller gain
+Matrix K=Matrix(2, 6, K_VALUES);
 
  float C_VALUES [24] =  {0,0,0,0,0,0,
                         0,0,0,0,0,0,
                         0,0,0,0,0,0,
                         0,0,0,0,0,0}; //sensor matrix
+Matrix C=Matrix(4, 6, C_VALUES);
  
  float L_VALUES [24] =  {0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
+                        0, 0, 0, 0,
+                        0, 0, 0, 0,
                         0, 0, 0, 0}; //kalman gain
+Matrix L=Matrix(6, 4, L_VALUES);
 
 
 #endif  // __MISSION_CONSTANTS_HH__

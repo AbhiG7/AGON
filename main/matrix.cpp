@@ -51,55 +51,55 @@ float * m_add_helper(float * A, float * B, int elements) {
 }
 
 //matrix multiplication
-Matrix mMult(Matrix A, Matrix B)
+Matrix Matrix::operator*(Matrix B)
 {
-    const int m=A.rows;
+    const int m=rows;
     const int p=B.columns;
-    const int n=A.columns;
-    float * values;
-    if (A.columns==B.rows)
+    const int n=columns;
+    float * new_values;
+    if (columns==B.rows)
     {
-        values=m_mult_helper(A.values, B.values, m, n, p);
+        new_values=m_mult_helper(values, B.values, m, n, p);
     }
-    return Matrix(m, p, values);
+    return Matrix(m, p, new_values);
 }
 
 //matrix addition function
-Matrix mAdd(Matrix A, Matrix B)
+Matrix Matrix::operator+(Matrix B)
 {
-    const int m_a=A.rows;
+    const int m_a=rows;
     const int n_b=B.columns;
-    const int n_a=A.columns;
+    const int n_a=columns;
     const int m_b=B.rows;
-    float * values;
+    float * new_values;
     if ((m_a==m_b)&&(n_a==n_b))
     {
-        values=m_add_helper(A.values, B.values, m_a*n_a);
+        new_values=m_add_helper(values, B.values, m_a*n_a);
     }
-    return Matrix(m_a, n_a, values);
+    return Matrix(m_a, n_a, new_values);
 }
 
 //scalar multiplication function
-Matrix sMult(Matrix A, float k)
+Matrix Matrix :: scale(float k)
 {
-    float * values;
-    values=s_mult_helper(A.values, k, A.rows*A.columns);
-    return Matrix(A.rows, A.columns, values);
+    float * new_values;
+    new_values=s_mult_helper(values, k, rows*columns);
+    return Matrix(rows, columns, new_values);
 }
 
 //matrix subtraction function
-Matrix mSub(Matrix A, Matrix B)
+Matrix Matrix::operator-(Matrix B)
 {
-    const int m_a=A.rows;
+    const int m_a=rows;
     const int n_b=B.columns;
-    const int n_a=A.columns;
+    const int n_a=columns;
     const int m_b=B.rows;
-    float * values;
+    float * new_values;
     if ((m_a==m_b)&&(n_a==n_b))
     {
-        values=m_sub_helper(A.values, B.values, m_a*n_a);
+        new_values=m_sub_helper(values, B.values, m_a*n_a);
     }
-    return Matrix(m_a, n_a, values);
+    return Matrix(m_a, n_a, new_values);
 }
 
 void display_matrix(Matrix A)
