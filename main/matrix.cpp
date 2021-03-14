@@ -113,3 +113,20 @@ void display_matrix(Matrix A)
         cout << "\n";
     }
 }
+
+/** for testing
+int main()
+{
+    float a_values [9] ={1, 0, 1, 0, 1, 1, 1, 0, 1};
+    float b_values [9] ={3, 0, 2, 2, 1, 3, 2, 2, -1};
+    Matrix A=Matrix(3, 3, a_values);
+    Matrix B=Matrix(3, 3, b_values);
+    
+    float d_values [6]= {-3, -10, 7, 2, 5, 0};
+    Matrix D=Matrix(3, 2, d_values);
+    Matrix E=(A+B)*D;
+    display_matrix(E);
+
+    return 0;
+}
+*/

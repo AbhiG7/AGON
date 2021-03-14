@@ -4,8 +4,8 @@
 #include <cstdint>
 #include "mission_constants.hh"
 #include "moding.hh"
-#include <Servo.h>  // TODO: what's this?
-#include "Wire.h"  // Arduino library
+//#include <Servo.h>  // TODO: what's this?
+//#include "Wire.h"  // Arduino library
 
 
 /* Workspace
@@ -55,9 +55,7 @@ class Workspace
         Matrix x; //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angle
         Matrix u; //input vector
         Matrix y; //output vector
-
-        float max_u = 5*DEG_2_RAD;  //maximum gimbal angle
-        float last_u[2] = {0, 0};  //commanded servo angle
+        Matrix last_u;        
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame

@@ -17,7 +17,6 @@ const float MEGA = 1.0e9;  // (--) SI Mega prefix
 //*****************************************************************************
 //                                  MISSION
 //*****************************************************************************
-//TODO: modify modes
 
 
 
@@ -31,25 +30,8 @@ enum Mode {
     FINAL_COUNTDOWN = 3,
     PREP_TVC = 4,
     BURN_BABY_BURN = 5,
-    TRANSFER_DATA = 6,
-    SHUTDOWN_STABLE =7
+    SHUTDOWN_STABLE = 6
 };
-
-// timing
-const int COUNTDOWN_WAIT = 10;  // (TODO: units) TODO: what is this?
-const int CALIBRATE_TIME = 0;  // (TODO: units) TODO: what is this?
-
-/**
-// z-acceleration > fireGoal+fireBuffer continuously for fireTBuffer before switching to 
-const float fireTBuffer = 0.01*MEGA;  // (us) TODO: what is this?
-const float fireBuffer = 3276.0/2.0/16.0;  // (m/s^2) ~0.25 TODO: what is this
-const float fireGoal = 0.0;  // -g TODO: what is this?
-
-// |z-acceleration| < landBuffer+landGoal continuously for landTBuffer before switching to 
-const float landTBuffer = 0.5*MEGA;  // (TODO: units) TODO: what is this? 
-const float landBuffer = 3276.0/2.0/8.0; // (TODO: units) TODO: what is this?
-const float landGoal = 0.0;  // (TODO: units) TODO: what is this?
-*/
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -97,6 +79,7 @@ const int drop_mechanism_release=120; //TODO: modify after assembly
 const float TVC_X_OFFSET = 85;  // TODO: add description
 const float TVC_Y_OFFSET = 83;  // TODO: add description
 
+float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
 const float BETA = 0.95;  // angle (rad) that corrects for misalignment between body frame and TVC frame
 const int TVC_DELAY = 4;  // time (in miliseconds) for servo to move 1 deg--> how much delay between servo commands
 

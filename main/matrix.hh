@@ -29,10 +29,6 @@ class Matrix
         Matrix operator*(Matrix);
 };
 
-//Matrix mMult(Matrix, Matrix);
-//Matrix mAdd(Matrix, Matrix);
-//Matrix sMult(Matrix, float);
-//Matrix mSub(Matrix, Matrix);
 void display_matrix(Matrix);
 
 #endif  // __MODING_HH__

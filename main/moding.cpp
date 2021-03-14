@@ -66,8 +66,27 @@ bool change_mode_to_shutdown_stable(Mode current_mode, bool cond)
  */
 void transition_to_navigation()
 {
+    //TODO: reset navigation
+    //TODO: change LED
 }
 
+void transition_to_countdown()
+{
+    //TODO: set final countdown point
+    //TODO: change LED
+}
+
+void transition_to_final_countdown()
+{
+    //TODO: set prep tvc point
+    //TODO: change LED
+}
+
+void transition_to_prep_tvc()
+{
+    //TODO: set burn time
+    //TODO: change LED
+}
 
 /* transition_to_burn_baby_burn
  * 
@@ -76,9 +95,9 @@ void transition_to_navigation()
  */
 void transition_to_burn_baby_burn()
 {
-    // TODO: engine ignition occurs here
+    //set stop time
+    //TODO: change LED
 }
-
 
 /* transition_to_shutdown_stable
  * 
@@ -87,5 +106,7 @@ void transition_to_burn_baby_burn()
  */
 void transition_to_shutdown_stable()
 {
-    // TODO: engine shutdown and safing occurs here
+    //TODO: change LED
+    //transfer data
+    //TODO: change LED
 }
