@@ -55,7 +55,8 @@ class Workspace
         Matrix x; //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angle
         Matrix u; //input vector
         Matrix y; //output vector
-        Matrix last_u;        
+        Matrix last_u;
+        float yaw;        
 
         // state
         float r_body[3] = {0.0, 0.0, 0.0};  // (m) position of the body frame origin TODO: define inertial frame

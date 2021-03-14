@@ -8,6 +8,9 @@
 #include <Servo.h>
 #include "matrix.hh"
 #include "mission_constants.hh"
+#include <cmath>
+
+using namespace std;
 
 // declare flash chip 
 #define CHIPSIZE MB64
@@ -21,13 +24,32 @@ Workspace ws;
  *
  * TODO: add docstring
  */
-void send_tvc_signal(int x, int y, double gamma, int d)
+void send_tvc(Matrix u, Matrix * last_u, double yaw)
 {
-    // cos and sin are native to arduino
-    double u = x*cos(gamma) + y*sin(gamma);
-    double v = y*cos(gamma) - x*sin(gamma);
-    ws.tvc_y.write(v + TVC_Y_OFFSET);
-    ws.tvc_x.write(u + TVC_X_OFFSET);
+    //scale down angle to physical tvc limit
+    float input_magnitude=powf((pow(u.select(1, 1), 2)+pow(u.select(2, 1), 2)), 0.5);
+    if (input_magnitude>MAX_U)
+    {
+        u.scale(MAX_U/input_magnitude);
+    }
+
+    //send 
+    float travel_magnitude=powf((pow(u.select(1, 1)-last_u.select(1, 1), 2)+pow(u.select(2, 1)-.select(2, 1), 2)), 0.5);
+    if (travel_magnitude>SERVO_SPEED*ws.dt)
+    {
+        u=last_u+(u-last_u).scale(SERVO_SPEED*ws.dt/travel_magnitude);
+    }
+    *last_u=u;
+
+    //rotate input are body z axis
+    float gamma=yaw+BETA;
+    float rotation_values [4]={cos(gamma), sin(gamma), -sin(gamma), cos(gamma)};
+    Matrix R=Matrix(2, 2, rotation_values);
+    u=R*u;
+
+    //convert to degrees, gear the angle, and round
+    ws.tvc_y.write(round(GEAR*RAD_2_DEG*u.select(2, 1))+TVC_Y_OFFSET);
+    ws.tvc_x.write(round(GEAR*RAD_2_DEG*u.select(1, 1))+TVC_X_OFFSET);
 }
 
 
@@ -57,15 +79,6 @@ void setup()
     // set up Thrust-Vector Controller (TVC)
     ws.tvc_x.attach(TVC_X_PIN);  // attaches declared servo to specified pin
     ws.tvc_y.attach(TVC_Y_PIN);  // attaches declared servo to specified pin
-
-    // actuate servo along x and then along y axis at startup
-    tvc_abs(  0,   0, BETA, TVC_DELAY*100);
-    tvc_abs( 30,   0, BETA, TVC_DELAY*100);
-    tvc_abs(-30,   0, BETA, TVC_DELAY*100);
-    tvc_abs(  0,   0, BETA, TVC_DELAY*100);
-    tvc_abs(  0,  30, BETA, TVC_DELAY*100);
-    tvc_abs(  0, -30, BETA, TVC_DELAY*100);
-    tvc_abs(  0,   0, BETA, TVC_DELAY*100);
 
     // set up IMUs
 
@@ -166,7 +179,7 @@ void loop()
             {
                 //TODO: construct y
                 ws.u=(K*ws.x).scale(-1);//calculate input
-                //send signal to tvc
+                send_tvc(ws.u, &ws.last_u, ws.yaw);
                 ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt) //state estimation only using sensors
             }
             break;

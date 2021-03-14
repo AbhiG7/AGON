@@ -13,25 +13,32 @@ const float RAD_2_DEG = 57.29577951308232;  // (deg/rad) conversion factor from 
 const float G_2_MS2 = 9.80665;  // (m/s^2/gee) conversion factor from gee to m/s^2
 
 const float MEGA = 1.0e9;  // (--) SI Mega prefix
+const int MEGA_I=1e9;
+const float KILO=1.0e3;
+const float KILO_I=1e3;
 
 //*****************************************************************************
 //                                  MISSION
 //*****************************************************************************
 
-
-
-const bool eraseFlash=false;
-
 // Missing modes (controls what happens in the loop)
 enum Mode {
     STARTUP_STABLE = 0,
-    NAVIGATION = 1,
-    COUNTDOWN = 2,
-    FINAL_COUNTDOWN = 3,
-    PREP_TVC = 4,
-    BURN_BABY_BURN = 5,
-    SHUTDOWN_STABLE = 6
+    COUNTDOWN = 1,
+    FINAL_COUNTDOWN = 2,
+    PREP_TVC = 3,
+    BURN_BABY_BURN = 4,
+    SHUTDOWN_STABLE = 5
 };
+
+//most modes change by time
+//after a predefined time period we switch to the next mode
+//MODE TIME PERIODS
+const int STARTUP_STABLE_PERIOD=10;
+const int COUNTDOWN_PERIOD=20;
+const int FINAL_COUNTDOWN_PERIOD=7;
+const int PREP_TVC_PERIOD=3;
+const int BURN_BABY_BURN_PERIOD=10;
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -49,14 +56,6 @@ const float LSB_LINEAR = 2048.0;  // (milli-gee/count) note documentation gives 
  * in main::setup, in call to setFullScaleGyroRange.
  */
 const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives incorrectly inverted units
-
-/* These bias calibration values account for sensor bias
- * in linear acceleration and angular velocity measurements.
- * Can't be declared a const since it's calculated
- * on-the-fly every startup.
- */
-int16_t IMU_LIN_ACC_BIAS[3];  // (count) IMU linear acceleration bias along each axis
-int16_t IMU_ANG_VEL_BIAS[3];  // (count) IMU angular velocity bias about each axis
 
 // LEDs 
 //TODO:modify values
@@ -76,6 +75,7 @@ const float GEAR = 9;  // gearing ratio of the servo to the TVC
 const int drop_mechanism_hold=10; //TODO: modify after assembly
 const int drop_mechanism_release=120; //TODO: modify after assembly
 
+const float SERVO_SPEED;
 const float TVC_X_OFFSET = 85;  // TODO: add description
 const float TVC_Y_OFFSET = 83;  // TODO: add description
 
