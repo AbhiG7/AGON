@@ -1,16 +1,7 @@
 #include "mission_constants.hh"
 #include "moding.hh"
 
-
-/* change_mode_to_navigation
- * 
- * Determines whether to change the mode to NAVIGATION.
- * 
- * Conditions:
- *   - current mode is STARTUP_STABLE
- *   - TODO: determine any remaining conditions
- */
-bool change_mode_to_navigation(Mode current_mode, bool cond)
+bool change_mode_coundown(Mode current_mode, bool cond)
 {
     bool ret = false;
     if (current_mode == STARTUP_STABLE && cond)
@@ -20,6 +11,25 @@ bool change_mode_to_navigation(Mode current_mode, bool cond)
     return ret;
 }
 
+bool change_mode_to_final_countdown(Mode current_mode, bool cond)
+{
+    bool ret = false;
+    if (current_mode == COUNTDOWN && cond)
+    {
+        ret = true;
+    }
+    return ret;
+}
+
+bool change_mode_to_prep_tvc(Mode current_mode, bool cond)
+{
+    bool ret = false;
+    if (current_mode == FINAL_COUNTDOWN && cond)
+    {
+        ret = true;
+    }
+    return ret;
+}
 
 /* change_mode_to_burn_baby_burn
  * 
@@ -32,7 +42,7 @@ bool change_mode_to_navigation(Mode current_mode, bool cond)
 bool change_mode_to_burn_baby_burn(Mode current_mode, bool cond)
 {
     bool ret = false;
-    if (current_mode == NAVIGATION && cond)
+    if (current_mode == PREP_TVC && cond)
     {
         ret = true;
     }
@@ -59,15 +69,26 @@ bool change_mode_to_shutdown_stable(Mode current_mode, bool cond)
 }
 
 
-/* transition_to_navigation
- * 
- * Handles anything that needs to happen only once when
- * changing modes from STARTUP_STABLE to NAVIGATION.
- */
-void transition_to_navigation()
+
+void transition_to_countdown()
 {
+    //TODO : change led
+    //reset navigation
+    //TODO: set final countdown point
+    //TODO: change LED
 }
 
+void transition_to_final_countdown()
+{
+    //TODO: set prep tvc point
+    //TODO: change LED
+}
+
+void transition_to_prep_tvc()
+{
+    //TODO: set burn time
+    //TODO: change LED
+}
 
 /* transition_to_burn_baby_burn
  * 
@@ -76,9 +97,9 @@ void transition_to_navigation()
  */
 void transition_to_burn_baby_burn()
 {
-    // TODO: engine ignition occurs here
+    //set stop time
+    //TODO: change LED
 }
-
 
 /* transition_to_shutdown_stable
  * 
@@ -87,5 +108,7 @@ void transition_to_burn_baby_burn()
  */
 void transition_to_shutdown_stable()
 {
-    // TODO: engine shutdown and safing occurs here
+    //TODO: change LED
+    //transfer data
+    //TODO: change LED
 }
