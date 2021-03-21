@@ -114,6 +114,11 @@ void display_matrix(Matrix A)
     }
 }
 
+void Matrix:: redefine(float* new_values)
+{
+    values=new_values;
+}
+
 /** for testing
 int main()
 {

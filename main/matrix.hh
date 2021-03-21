@@ -11,7 +11,7 @@ class Matrix
         int rows;
         int columns;
         float * values;
-
+        
         Matrix(int row_number, int column_number, float * mat_values)
         {
             rows=row_number;
@@ -23,6 +23,8 @@ class Matrix
         {
             return values[(row-1)*columns+(column-1)];
         }
+
+        void redefine(float*);
         Matrix operator+(Matrix);
         Matrix operator-(Matrix);
         Matrix scale (float);

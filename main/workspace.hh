@@ -4,8 +4,9 @@
 #include <cstdint>
 #include "mission_constants.hh"
 #include "moding.hh"
-//#include <Servo.h>  // TODO: what's this?
-//#include "Wire.h"  // Arduino library
+#include "matrix.hh"
+#include <Servo.h>  // TODO: what's this?
+#include "Wire.h"  // Arduino library
 
 
 /* Workspace
@@ -23,8 +24,8 @@ class Workspace
         //*****************************************************************************
         //                              HARDWARE SETUP
         //*****************************************************************************
-        MPU6050 imu_0(0x68);  // (--) first IMU to read data from
-        MPU6050 imu_1(0x69);  // (--) second IMU to read data from
+        struct bno055_t myBNO;
+        struct bno055_euler myEulerData;
 
         //*****************************************************************************
         //                              LOOP VARIABLES
@@ -34,28 +35,30 @@ class Workspace
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         unsigned long dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
 
-        //event times
-        unsigned long drop_time=0;
-        unsigned long fire_time=0;
-
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
         float a_1[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
-        float w_0[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
-        float w_1[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        float theta_0[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        float theta_1[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
 
         // flight mode
         Mode mode = STARTUP_STABLE;
+        int next_mode_time=0;
 
         // Servos
         Servo tvc_x;  // servo that actuates TVC around x body axis
         Servo tvc_y;  // servo that actuates TVC around x body axis
 
         //control vectors
-        Matrix x; //state vector = {vx, theta_y, d_theta_y_dt, vy, theta_x, d_theta_x_dt} global frame and euler angle
-        Matrix u; //input vector
-        Matrix y; //output vector
-        Matrix last_u;
+        // set up controller
+        float initialize_6 [6]={0, 0, 0, 0, 0, 0};
+        float initialize_4 [4]={0, 0, 0, 0};
+        float initialize_2 [2]={0, 0};
+        Matrix x=Matrix(6, 1, initialize_6);
+        Matrix y=Matrix(4, 1, initialize_4);
+        Matrix u=Matrix(2, 1, initialize_2);
+        Matrix last_u=Matrix(2, 1, initialize_2);
+        float y_values [4]= {0, 0, 0, 0};
         float yaw;        
 
         // state
@@ -63,6 +66,15 @@ class Workspace
         float v_body_wrt_inertial_in_inertial[3] = {0.0, 0.0, 0.0};  // (m/s) velocity of body frame origin wrt inertial frame, components resolved in inertial frame
         float qr_body_wrt_inrt[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame into inertial frame
         float qr_inrt_wrt_body[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming inertial frame into body frame
+
+        void construct_y()
+        {
+            y_values[0]=0;
+            y_values[1]=(theta_0[1]+theta_1[1])/2;
+            y_values[2]= 0;
+            y_values[3]= (theta_0[0]+theta_1[0])/2;
+            y.redefine(y_values);
+        }
 };
 
 #endif  // __WORKSPACE_HH__

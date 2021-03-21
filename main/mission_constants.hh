@@ -1,9 +1,7 @@
 #ifndef __MISSION_CONSTANTS_HH__
 #define __MISSION_CONSTANTS_HH__
 
-#include <cstdint>
 #include "matrix.hh"
-
 
 //*****************************************************************************
 //                             CONVERSION FACTORS
@@ -34,7 +32,7 @@ enum Mode {
 //most modes change by time
 //after a predefined time period we switch to the next mode
 //MODE TIME PERIODS
-const int STARTUP_STABLE_PERIOD=10;
+const int STARTUP_STABLE_PERIOD=15;
 const int COUNTDOWN_PERIOD=20;
 const int FINAL_COUNTDOWN_PERIOD=7;
 const int PREP_TVC_PERIOD=3;
@@ -57,61 +55,56 @@ const float LSB_LINEAR = 2048.0;  // (milli-gee/count) note documentation gives 
  */
 const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives incorrectly inverted units
 
-// LEDs 
-//TODO:modify values
-const int B_LED_1 = 6;  // Blue LED1 Pin
-const int G_LED_1 = 4;  // Green LED1 Pin
-const int B_LED_2 = 9;  // Blue LED2 Pin
-const int G_LED_2 = 8;  // Green LED2 Pin
-
-const int MOTOR_PIN = 22;  // Pin that signals motor to fire
-
-// Thrust-Vector Controller (TVC)  //TODO: modify values
-const int DROP_PIN = 5;  // pin for the servo in the drop mechanism
+//PINOUTS
 const int TVC_X_PIN = 20;  // pin for the servo that actuates TVC around x body axis
 const int TVC_Y_PIN = 21;  // pin for the servo that actuates TVC around y body axis
+const int SD_CS_PIN = 0;
+const int FLASH_CS_PIN = 0;
+const int IMU_1_PIN=0;
+const int IMU_2_PIN=0;
+const int R_LED_PIN=0;
+const int B_LED_PIN=0;
+const int G_LED_PIN=0;
+
+// Thrust-Vector Controller (TVC)  //TODO: modify values
 const float GEAR = 9;  // gearing ratio of the servo to the TVC
-
-const int drop_mechanism_hold=10; //TODO: modify after assembly
-const int drop_mechanism_release=120; //TODO: modify after assembly
-
-const float SERVO_SPEED;
+const float SERVO_SPEED=.1;
 const float TVC_X_OFFSET = 85;  // TODO: add description
 const float TVC_Y_OFFSET = 83;  // TODO: add description
-
-float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
+const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
 const float BETA = 0.95;  // angle (rad) that corrects for misalignment between body frame and TVC frame
-const int TVC_DELAY = 4;  // time (in miliseconds) for servo to move 1 deg--> how much delay between servo commands
 
 // TODO: define these quaternions based on IMU installation in rocket
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame
 const float QR_BODY_TO_IMU[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame to IMU frame
 
+//rocket physical parameters
 const float THRUST=10; //TODO: make exact
 const float MOMENT_ARM=.265; //TODO: make exact
 const float MOMENT_INERTIA_XX=1; //TODO: make exact
 const float MOMENT_INERTIA_YY=1;//TODO: make exact
+const float MASS=1;
 
 //control constants TODO: fill these out
-float A_VALUES [36] =   {0,0,0,0,0,0,
+float A_VALUES [36] =   {0,THRUST/MASS,0,0,0,0,
+                        0,0,1,0,0,0,
                         0,0,0,0,0,0,
-                        0,0,0,0,0,0,
-                        0,0,0,0,0,0,
-                        0,0,0,0,0,0,
+                        0,0,0,-THRUST/MASS,0,0,
+                        0,0,0,0,0,1,
                         0,0,0,0,0,0}; //dynamics matrix
 Matrix A=Matrix(6, 6, A_VALUES);        
  
- float B_VALUES [12] =  {0, 0, 
+ float B_VALUES [12] =  {THRUST/MASS, 0, 
                         0, 0,
+                        -THRUST*MOMENT_ARM/MOMENT_INERTIA_YY, 0,
+                        0, -THRUST/MASS,
                         0, 0,
-                        0, 0,
-                        0, 0,
-                        0, 0}; //input matrix
+                        0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
 Matrix B=Matrix(6, 2, B_VALUES);
  
  float K_VALUES [12] =  {0,0,0,0,0,0,
                         0,0,0,0,0,0}; //controller gain
-Matrix K=Matrix(2, 6, K_VALUES);
+Matrix KC=Matrix(2, 6, K_VALUES);
 
  float C_VALUES [24] =  {1,0,0,0,0,0,
                         0,0,1,0,0,0,
@@ -127,5 +120,4 @@ Matrix C=Matrix(4, 6, C_VALUES);
                         0, 0, 0, 0}; //kalman gain
 Matrix L=Matrix(6, 4, L_VALUES);
 
-
-#endif  // __MISSION_CONSTANTS_HH__
+#endif
