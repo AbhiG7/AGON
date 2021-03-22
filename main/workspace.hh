@@ -43,7 +43,7 @@ class Workspace
 
         // flight mode
         Mode mode = STARTUP_STABLE;
-        int next_mode_time=0;
+        unsigned long int next_mode_time=0;
 
         // Servos
         Servo tvc_x;  // servo that actuates TVC around x body axis

@@ -1,7 +1,31 @@
-#include "matrix.hh"
-#include <string>
-
+#include <iostream>
 using namespace std;
+
+class Matrix
+{
+    public:
+        int rows;
+        int columns;
+        float * values;
+        
+        Matrix(int row_number, int column_number, float * mat_values)
+        {
+            rows=row_number;
+            columns=column_number;
+            values=mat_values;
+        }
+
+        float select(int row, int column)
+        {
+            return values[(row-1)*columns+(column-1)];
+        }
+
+        void redefine(float*);
+        Matrix operator+(Matrix);
+        Matrix operator-(Matrix);
+        Matrix scale (float);
+        Matrix operator*(Matrix);
+};
 
 //matrix subtraction helper function
 float * m_sub_helper(float * A, float * B, int elements) {
@@ -10,6 +34,7 @@ float * m_sub_helper(float * A, float * B, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] - B[i];
 	}
+	delete C;
 	return C;
 }
 
@@ -20,13 +45,14 @@ float * s_mult_helper(float * A, float rho, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] * rho;
 	}
+	delete C;
 	return C;
 }
 
 //matrix multiplication helper function
 float * m_mult_helper(float * A, float * B, int m, int n, int p) {
 	float * C;
-	C = new float[m*p];
+	C=new float[m*p];
 	for (int i = 0;  i < m; i++)
 	{
 		for (int j = 0; j < p; j++)
@@ -38,6 +64,7 @@ float * m_mult_helper(float * A, float * B, int m, int n, int p) {
 			}
 		}
 	}
+	delete C;
 	return C;
 }
 
@@ -48,6 +75,7 @@ float * m_add_helper(float * A, float * B, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] + B[i];
 	}
+	delete C;
 	return C;
 }
 
@@ -103,27 +131,24 @@ Matrix Matrix::operator-(Matrix B)
     return Matrix(m_a, n_a, new_values);
 }
 
-string display_matrix(Matrix A)
-{
-    std::string result;
-    for (int i=0; i<A.rows; i++)
-    {
-        for (int j = 0; j < A.columns; j++)
-        {
-            result+= A.select(i+1,j+1);
-            result+= "    ";
-        }
-        result+="\n";
-    }
-    return result;
-}
-
 void Matrix:: redefine(float* update_values)
 {
     values=update_values;
 }
 
-/** for testing
+void display_matrix(Matrix A)
+{
+    for (int i=0; i<A.rows; i++)
+    {
+        for (int j = 0; j < A.columns; j++)
+        {
+            cout << A.select(i+1,j+1) << "    ";
+        }
+        cout << "\n";
+    }
+}
+
+
 int main()
 {
     float a_values [9] ={1, 0, 1, 0, 1, 1, 1, 0, 1};
@@ -138,4 +163,3 @@ int main()
 
     return 0;
 }
-*/

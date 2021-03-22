@@ -18,6 +18,18 @@ using namespace std;
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
 
+int count=0;
+
+
+void main_display_matrix(Matrix param)
+{
+  for (int i=0; i<param.rows*param.columns; i++)
+  {
+     Serial.print(param.values[i]);
+     Serial.print("    ");
+  }
+  Serial.println(" ");
+}
 
 /* tvc_abs
  *
@@ -59,8 +71,9 @@ void send_tvc(Matrix u, Matrix * last_u, double yaw)
 void setup()
 {
     // set up pins (OUTPUT and LOW are defined in Arduino.h)
-
-
+    pinMode(15, INPUT);
+    digitalWrite(15, HIGH);
+    
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
 
@@ -100,10 +113,17 @@ void loop()
 
     bno055_read_euler_hrp(&ws.myEulerData);
     ws.yaw=float(ws.myEulerData.h)/16.00*DEG_2_RAD;
-    ws.theta_0[0]=ws.myEulerData.r;
-    ws.theta_1[0]=ws.myEulerData.r;
-    ws.theta_0[1]=ws.myEulerData.p;
-    ws.theta_1[1]=ws.myEulerData.p;
+    
+    //Serial.print(float(ws.myEulerData.h/16.00));
+    //Serial.print("    ");
+    //Serial.print(float(ws.myEulerData.r/16.00));
+    //Serial.print("    ");
+    //Serial.println(float(ws.myEulerData.p/16.00));
+    
+    ws.theta_0[0]=float(ws.myEulerData.r/16.00);
+    ws.theta_1[0]=float(ws.myEulerData.r/16.00);
+    ws.theta_0[1]=float(ws.myEulerData.p/16.00);
+    ws.theta_1[1]=float(ws.myEulerData.p/16.00);
 
     // check for moding change conditions
     switch (ws.mode)
@@ -112,8 +132,14 @@ void loop()
         {
             if (change_mode_to_countdown(millis()>ws.next_mode_time))
             {
+              Serial.println(" ");
+              Serial.print("-----------------------     ");
+              Serial.print(ws.mode);
+              Serial.print("t");
+              Serial.print("     -----------------------");
+              Serial.println(" ");
                 transition_to_countdown();
-                ws.next_mode_time=millis()+COUNTDOWN*KILO_I;
+                ws.next_mode_time=millis()+COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = COUNTDOWN;
             }
             else
@@ -123,17 +149,27 @@ void loop()
             break;
         }
         case (COUNTDOWN):
-        {
+        {          
             if (change_mode_to_final_countdown(millis()>ws.next_mode_time))
             {
+              Serial.println(" ");
+              Serial.print("-----------------------     ");
+              Serial.print(ws.mode);
+              Serial.print("t");
+              Serial.print("     -----------------------");
+              Serial.println(" ");
+              
                 transition_to_final_countdown();
+                Serial.println("here");
                 ws.next_mode_time=millis()+FINAL_COUNTDOWN_PERIOD*KILO_I;
+                Serial.println("here");
                 ws.mode = FINAL_COUNTDOWN;
+                Serial.println("here");
             }
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                //ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
             }
             break;
         }
@@ -141,6 +177,12 @@ void loop()
         {
             if (change_mode_to_prep_tvc(millis()>ws.next_mode_time))
             {
+              Serial.println(" ");
+              Serial.print("-----------------------     ");
+              Serial.print(ws.mode);
+              Serial.print("t");
+              Serial.print("     -----------------------");
+              Serial.println(" ");
                 transition_to_prep_tvc();
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
@@ -148,7 +190,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                //ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
             }
             break;
         }
@@ -157,7 +199,7 @@ void loop()
             if (change_mode_to_burn_baby_burn(millis()>ws.next_mode_time))
             {
                 transition_to_burn_baby_burn();
-                ws.next_mode_time=millis()+BURN_BABY_BURN*KILO_I;
+                ws.next_mode_time=millis()+BURN_BABY_BURN_PERIOD*KILO_I;
                 ws.mode = BURN_BABY_BURN;
             }
             else
@@ -165,7 +207,7 @@ void loop()
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1);//calculate input
                 send_tvc(ws.u, &ws.last_u, ws.yaw);
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
             }
             break;
         }
@@ -181,7 +223,7 @@ void loop()
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1); //calculate input
                 send_tvc(ws.u, &ws.last_u, ws.yaw);
-                ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation using Kalman filter
+                ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation using Kalman filter
             }
             break;
         }
@@ -190,8 +232,33 @@ void loop()
             // TODO: implement this block
             break;
         }
-        display_matrix(ws.y);
+        
     }
+
+
+    //count++;
+    //if(count%150==0)
+    //{
+        //main_display_matrix(ws.y);
+        //main_display_matrix(ws.x);
+        Serial.println(millis());
+        Serial.println(ws.next_mode_time);
+        Serial.println();
+      //Serial.print(ws.theta_0[0]);
+      //Serial.print("    ");
+      //Serial.print(ws.theta_0[1]);
+      //Serial.print("    ");
+      //Serial.println(ws.theta_0[2]);
+  
+      //Serial.print(ws.theta_1[0]);
+      //Serial.print("    ");
+      //Serial.print(ws.theta_1[1]);
+      //Serial.print("    ");
+      //Serial.println(ws.theta_1[2]);
+      //Serial.println(" ");
+    //}
+    
+    //Serial.println(ws.dt);
     // TODO: add data record
     // TODO: add (somewhere else) data struct
 }

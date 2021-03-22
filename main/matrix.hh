@@ -3,6 +3,8 @@
 
 #include <cstdbool>
 #include <cstdint>
+#include <string>
+using namespace std;
 
 
 class Matrix
@@ -31,6 +33,6 @@ class Matrix
         Matrix operator*(Matrix);
 };
 
-void display_matrix(Matrix);
+string display_matrix(Matrix);
 
 #endif  // __MODING_HH__

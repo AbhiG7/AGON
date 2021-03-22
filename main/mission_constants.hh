@@ -86,38 +86,38 @@ const float MOMENT_INERTIA_YY=1;//TODO: make exact
 const float MASS=1;
 
 //control constants TODO: fill these out
-float A_VALUES [36] =   {0,THRUST/MASS,0,0,0,0,
+const float A_VALUES [36] =   {0,THRUST/MASS,0,0,0,0,
                         0,0,1,0,0,0,
                         0,0,0,0,0,0,
                         0,0,0,-THRUST/MASS,0,0,
                         0,0,0,0,0,1,
                         0,0,0,0,0,0}; //dynamics matrix
-Matrix A=Matrix(6, 6, A_VALUES);        
+const Matrix A=Matrix(6, 6, A_VALUES);        
  
- float B_VALUES [12] =  {THRUST/MASS, 0, 
+const float B_VALUES [12] =  {THRUST/MASS, 0, 
                         0, 0,
                         -THRUST*MOMENT_ARM/MOMENT_INERTIA_YY, 0,
                         0, -THRUST/MASS,
                         0, 0,
                         0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
-Matrix B=Matrix(6, 2, B_VALUES);
+const Matrix B=Matrix(6, 2, B_VALUES);
  
- float K_VALUES [12] =  {0,0,0,0,0,0,
+const float K_VALUES [12] =  {0,0,0,0,0,0,
                         0,0,0,0,0,0}; //controller gain
-Matrix KC=Matrix(2, 6, K_VALUES);
+const Matrix KC=Matrix(2, 6, K_VALUES);
 
- float C_VALUES [24] =  {1,0,0,0,0,0,
+const float C_VALUES [24] =  {1,0,0,0,0,0,
                         0,0,1,0,0,0,
                         0,0,0,1,0,0,
                         0,0,0,0,0,1}; //sensor matrix
-Matrix C=Matrix(4, 6, C_VALUES);
+const Matrix C=Matrix(4, 6, C_VALUES);
  
- float L_VALUES [24] =  {0, 0, 0, 0,
+const float L_VALUES [24] =  {0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0}; //kalman gain
-Matrix L=Matrix(6, 4, L_VALUES);
+const Matrix L=Matrix(6, 4, L_VALUES);
 
 #endif
