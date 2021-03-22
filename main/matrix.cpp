@@ -10,6 +10,7 @@ float * m_sub_helper(float * A, float * B, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] - B[i];
 	}
+  //delete C;
 	return C;
 }
 
@@ -20,6 +21,7 @@ float * s_mult_helper(float * A, float rho, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] * rho;
 	}
+  //delete C;
 	return C;
 }
 
@@ -38,6 +40,7 @@ float * m_mult_helper(float * A, float * B, int m, int n, int p) {
 			}
 		}
 	}
+  //delete C;
 	return C;
 }
 
@@ -48,6 +51,7 @@ float * m_add_helper(float * A, float * B, int elements) {
 	for (int i = 0; i < elements; i++) {
 		C[i] = A[i] + B[i];
 	}
+  //delete C;
 	return C;
 }
 

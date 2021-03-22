@@ -132,12 +132,6 @@ void loop()
         {
             if (change_mode_to_countdown(millis()>ws.next_mode_time))
             {
-              Serial.println(" ");
-              Serial.print("-----------------------     ");
-              Serial.print(ws.mode);
-              Serial.print("t");
-              Serial.print("     -----------------------");
-              Serial.println(" ");
                 transition_to_countdown();
                 ws.next_mode_time=millis()+COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = COUNTDOWN;
@@ -152,19 +146,9 @@ void loop()
         {          
             if (change_mode_to_final_countdown(millis()>ws.next_mode_time))
             {
-              Serial.println(" ");
-              Serial.print("-----------------------     ");
-              Serial.print(ws.mode);
-              Serial.print("t");
-              Serial.print("     -----------------------");
-              Serial.println(" ");
-              
                 transition_to_final_countdown();
-                Serial.println("here");
                 ws.next_mode_time=millis()+FINAL_COUNTDOWN_PERIOD*KILO_I;
-                Serial.println("here");
                 ws.mode = FINAL_COUNTDOWN;
-                Serial.println("here");
             }
             else
             {
@@ -177,12 +161,6 @@ void loop()
         {
             if (change_mode_to_prep_tvc(millis()>ws.next_mode_time))
             {
-              Serial.println(" ");
-              Serial.print("-----------------------     ");
-              Serial.print(ws.mode);
-              Serial.print("t");
-              Serial.print("     -----------------------");
-              Serial.println(" ");
                 transition_to_prep_tvc();
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
@@ -234,31 +212,6 @@ void loop()
         }
         
     }
-
-
-    //count++;
-    //if(count%150==0)
-    //{
-        //main_display_matrix(ws.y);
-        //main_display_matrix(ws.x);
-        Serial.println(millis());
-        Serial.println(ws.next_mode_time);
-        Serial.println();
-      //Serial.print(ws.theta_0[0]);
-      //Serial.print("    ");
-      //Serial.print(ws.theta_0[1]);
-      //Serial.print("    ");
-      //Serial.println(ws.theta_0[2]);
-  
-      //Serial.print(ws.theta_1[0]);
-      //Serial.print("    ");
-      //Serial.print(ws.theta_1[1]);
-      //Serial.print("    ");
-      //Serial.println(ws.theta_1[2]);
-      //Serial.println(" ");
-    //}
-    
-    //Serial.println(ws.dt);
     // TODO: add data record
     // TODO: add (somewhere else) data struct
 }

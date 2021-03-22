@@ -35,4 +35,4 @@ class Matrix
 
 string display_matrix(Matrix);
 
-#endif  // __MODING_HH__
+#endif
