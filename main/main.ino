@@ -71,7 +71,7 @@ void send_tvc(Matrix u, Matrix * last_u, double yaw)
 void setup()
 {
     // set up pins (OUTPUT and LOW are defined in Arduino.h)
-    pinMode(15, INPUT);
+    pinMode(15, OUTPUT);
     digitalWrite(15, HIGH);
     
     //TODO flash setup
