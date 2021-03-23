@@ -58,7 +58,7 @@ class Workspace
         Matrix y=Matrix(4, 1, initialize_4);
         Matrix u=Matrix(2, 1, initialize_2);
         Matrix last_u=Matrix(2, 1, initialize_2);
-        float y_values [4]= {0, 0, 0, 0};
+        vector<float> y_values {0, 0, 0, 0};
         float yaw;        
 
         // state

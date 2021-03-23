@@ -2,6 +2,9 @@
 #define __MISSION_CONSTANTS_HH__
 
 #include "matrix.hh"
+#include <vector>
+
+using namespace std;
 
 //*****************************************************************************
 //                             CONVERSION FACTORS
@@ -86,38 +89,38 @@ const float MOMENT_INERTIA_YY=1;//TODO: make exact
 const float MASS=1;
 
 //control constants TODO: fill these out
-const float A_VALUES [36] =   {0,THRUST/MASS,0,0,0,0,
-                        0,0,1,0,0,0,
-                        0,0,0,0,0,0,
-                        0,0,0,-THRUST/MASS,0,0,
-                        0,0,0,0,0,1,
-                        0,0,0,0,0,0}; //dynamics matrix
-const Matrix A=Matrix(6, 6, A_VALUES);        
+vector<float>  A_VALUES {0,THRUST/MASS,0,0,0,0,
+                0,0,1,0,0,0,
+                0,0,0,0,0,0,
+                0,0,0,-THRUST/MASS,0,0,
+                0,0,0,0,0,1,
+                0,0,0,0,0,0}; //dynamics matrix
+Matrix A=Matrix(6, 6, A_VALUES);        
  
-const float B_VALUES [12] =  {THRUST/MASS, 0, 
+vector<float> B_VALUES {THRUST/MASS, 0, 
                         0, 0,
                         -THRUST*MOMENT_ARM/MOMENT_INERTIA_YY, 0,
                         0, -THRUST/MASS,
                         0, 0,
                         0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
-const Matrix B=Matrix(6, 2, B_VALUES);
+Matrix B=Matrix(6, 2, B_VALUES);
  
-const float K_VALUES [12] =  {0,0,0,0,0,0,
+vector<float> K_VALUES {0,0,0,0,0,0,
                         0,0,0,0,0,0}; //controller gain
-const Matrix KC=Matrix(2, 6, K_VALUES);
+Matrix KC=Matrix(2, 6, K_VALUES);
 
-const float C_VALUES [24] =  {1,0,0,0,0,0,
+vector<float> C_VALUES {1,0,0,0,0,0,
                         0,0,1,0,0,0,
                         0,0,0,1,0,0,
                         0,0,0,0,0,1}; //sensor matrix
-const Matrix C=Matrix(4, 6, C_VALUES);
+Matrix C=Matrix(4, 6, C_VALUES);
  
-const float L_VALUES [24] =  {0, 0, 0, 0,
+vector<float> L_VALUES {0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0,
                         0, 0, 0, 0}; //kalman gain
-const Matrix L=Matrix(6, 4, L_VALUES);
+Matrix L=Matrix(6, 4, L_VALUES);
 
 #endif

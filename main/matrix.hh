@@ -12,9 +12,9 @@ class Matrix
     public:
         int rows;
         int columns;
-        float * values;
+        vector<float> values;
         
-        Matrix(int row_number, int column_number, float * mat_values)
+        Matrix(int row_number, int column_number, vector<float> mat_values)
         {
             rows=row_number;
             columns=column_number;
@@ -26,13 +26,11 @@ class Matrix
             return values[(row-1)*columns+(column-1)];
         }
 
-        void redefine(float*);
+        void redefine(vector<float>);
         Matrix operator+(Matrix);
         Matrix operator-(Matrix);
         Matrix scale (float);
         Matrix operator*(Matrix);
 };
-
-string display_matrix(Matrix);
 
 #endif

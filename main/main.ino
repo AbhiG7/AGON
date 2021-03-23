@@ -54,7 +54,7 @@ void send_tvc(Matrix u, Matrix * last_u, double yaw)
 
     //rotate input are body z axis
     float gamma=yaw+BETA;
-    float rotation_values [4]={cos(gamma), sin(gamma), -sin(gamma), cos(gamma)};
+    vector<float> rotation_values {cos(gamma), sin(gamma), -sin(gamma), cos(gamma)};
     Matrix R=Matrix(2, 2, rotation_values);
     u=R*u;
 
@@ -153,13 +153,13 @@ void loop()
             else
             {
                 ws.construct_y();
-                //ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
             }
             break;
         }
         case(FINAL_COUNTDOWN):
         {
-            if (change_mode_to_prep_tvc(millis()>ws.next_mode_time))
+            if (change_mode_to_prep_tvc(millis() > ws.next_mode_time))
             {
                 transition_to_prep_tvc();
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
@@ -168,7 +168,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                //ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
             }
             break;
         }
