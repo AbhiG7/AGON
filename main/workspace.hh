@@ -7,6 +7,8 @@
 #include "matrix.hh"
 #include <Servo.h>  // TODO: what's this?
 #include "Wire.h"  // Arduino library
+#include <vector>
+using namespace std;
 
 
 /* Workspace
@@ -24,8 +26,11 @@ class Workspace
         //*****************************************************************************
         //                              HARDWARE SETUP
         //*****************************************************************************
-        struct bno055_t myBNO;
-        struct bno055_euler myEulerData;
+        struct bno055_t bno_1;
+        struct bno055_euler euler_1;
+
+        struct bno055_t bno_2;
+        struct bno055_euler euler_2;
 
         //*****************************************************************************
         //                              LOOP VARIABLES
@@ -33,7 +38,7 @@ class Workspace
         // clock time
         unsigned long calibrate_time = 0;  //momment main loop starts
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
-        unsigned long dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
+        float dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
 
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
@@ -51,14 +56,15 @@ class Workspace
 
         //control vectors
         // set up controller
-        float initialize_6 [6]={0, 0, 0, 0, 0, 0};
-        float initialize_4 [4]={0, 0, 0, 0};
-        float initialize_2 [2]={0, 0};
+        vector<float> initialize_6 {0, 0, 0, 0, 0, 0};
+        vector<float> initialize_4 {0, 0, 0, 0};
+        vector<float> initialize_2 {0, 0};
         Matrix x=Matrix(6, 1, initialize_6);
         Matrix y=Matrix(4, 1, initialize_4);
         Matrix u=Matrix(2, 1, initialize_2);
         Matrix last_u=Matrix(2, 1, initialize_2);
         vector<float> y_values {0, 0, 0, 0};
+        vector<float> last_y_values {0, 0, 0, 0};
         float yaw;        
 
         // state
@@ -69,10 +75,18 @@ class Workspace
 
         void construct_y()
         {
+            theta_0[2]=float(euler_1.h/16.00);
+            theta_1[2]=float(euler_2.h/16.00);
+            theta_0[1]=float(euler_1.r/16.00);
+            theta_1[1]=float(euler_2.r/16.00);
+            theta_0[0]=float(euler_1.p/16.00);
+            theta_1[0]=float(euler_2.p/16.00);
+          
             y_values[0]=0;
-            y_values[1]=(theta_0[1]+theta_1[1])/2;
+            y_values[1]=(theta_0[1]+theta_1[1])/2.0*DEG_2_RAD;
             y_values[2]= 0;
-            y_values[3]= (theta_0[0]+theta_1[0])/2;
+            y_values[3]= (theta_0[0]+theta_1[0])/2.0*DEG_2_RAD;
+            yaw=(theta_0[2]+theta_1[2])/2.0*DEG_2_RAD;
             y.redefine(y_values);
         }
 };

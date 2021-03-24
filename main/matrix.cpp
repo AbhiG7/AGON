@@ -1,7 +1,6 @@
 #include "matrix.hh"
 #include <string>
 #include <vector>
-
 using namespace std;
 
 //matrix multiplication

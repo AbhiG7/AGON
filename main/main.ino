@@ -1,6 +1,6 @@
 #include "I2Cdev.h"
 #include "moding.hh"
-//#include <SPIFlash.h>  // flash chip library
+#include <SPIFlash.h>  // flash chip library
 #include "BNO055_support.h"		//Contains the bridge code between the API and Arduino
 #include <Wire.h>
 #include "workspace.hh"  // variable storage
@@ -8,7 +8,7 @@
 #include "matrix.hh"
 #include "mission_constants.hh"
 #include <cmath>
-
+#include <vector>
 using namespace std;
 
 // declare flash chip 
@@ -18,14 +18,11 @@ using namespace std;
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
 
-int count=0;
-
-
 void main_display_matrix(Matrix param)
 {
   for (int i=0; i<param.rows*param.columns; i++)
   {
-     Serial.print(param.values[i]);
+     Serial.print(param.values[i], 4);
      Serial.print("    ");
   }
   Serial.println(" ");
@@ -71,8 +68,11 @@ void send_tvc(Matrix u, Matrix * last_u, double yaw)
 void setup()
 {
     // set up pins (OUTPUT and LOW are defined in Arduino.h)
-    pinMode(15, OUTPUT);
+    pinMode(15, INPUT);
     digitalWrite(15, HIGH);
+
+    pinMode(0, INPUT);
+    digitalWrite(0, LOW);
     
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
@@ -88,7 +88,16 @@ void setup()
     Wire.begin();
 
     //Initialization of the BNO055
-    BNO_Init(&ws.myBNO); //Assigning the structure to hold information about the device
+    BNO_Init(&ws.bno_1); //Assigning the structure to hold information about the device
+    BNO_Init(&ws.bno_2); //Assigning the structure to hold information about the device
+
+    bno055_set_axis_remap_value(0X06);
+    delay(1);
+    bno055_set_z_remap_sign(0x01);
+    delay(1);
+    bno055_set_z_remap_sign(0x01);
+    delay(1);
+
 
     //Configuration to NDoF mode
     bno055_set_operation_mode(OPERATION_MODE_NDOF);
@@ -108,22 +117,11 @@ void setup()
 void loop()
 {
     // update the clock
-    ws.dt = micros() - ws.t_prev_cycle;  // (us) time step since previous loop
+    ws.dt = float(micros() - ws.t_prev_cycle);  // (us) time step since previous loop
     ws.t_prev_cycle += ws.dt;  // (us) update time for next loop
 
-    bno055_read_euler_hrp(&ws.myEulerData);
-    ws.yaw=float(ws.myEulerData.h)/16.00*DEG_2_RAD;
-    
-    //Serial.print(float(ws.myEulerData.h/16.00));
-    //Serial.print("    ");
-    //Serial.print(float(ws.myEulerData.r/16.00));
-    //Serial.print("    ");
-    //Serial.println(float(ws.myEulerData.p/16.00));
-    
-    ws.theta_0[0]=float(ws.myEulerData.r/16.00);
-    ws.theta_1[0]=float(ws.myEulerData.r/16.00);
-    ws.theta_0[1]=float(ws.myEulerData.p/16.00);
-    ws.theta_1[1]=float(ws.myEulerData.p/16.00);
+    bno055_read_euler_hrp(&ws.euler_1);
+    bno055_read_euler_hrp(&ws.euler_2);
 
     // check for moding change conditions
     switch (ws.mode)
@@ -153,7 +151,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
             }
             break;
         }
@@ -161,6 +159,9 @@ void loop()
         {
             if (change_mode_to_prep_tvc(millis() > ws.next_mode_time))
             {
+                digitalWrite(15, HIGH);
+                delay(1);
+                digitalWrite(15, HIGH);
                 transition_to_prep_tvc();
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
@@ -168,7 +169,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
             }
             break;
         }
@@ -184,8 +185,8 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1);//calculate input
-                send_tvc(ws.u, &ws.last_u, ws.yaw);
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation only using sensors
+                //send_tvc(ws.u, &ws.last_u, ws.yaw);
+                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
             }
             break;
         }
@@ -200,8 +201,8 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1); //calculate input
-                send_tvc(ws.u, &ws.last_u, ws.yaw);
-                ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt); //state estimation using Kalman filter
+                //send_tvc(ws.u, &ws.last_u, ws.yaw);
+                ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation using Kalman filter
             }
             break;
         }
@@ -212,6 +213,10 @@ void loop()
         }
         
     }
+    Serial.println(ws.mode);
+    
+    //Serial.print(millis());
+    main_display_matrix(ws.x);
     // TODO: add data record
     // TODO: add (somewhere else) data struct
 }

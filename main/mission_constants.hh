@@ -3,7 +3,6 @@
 
 #include "matrix.hh"
 #include <vector>
-
 using namespace std;
 
 //*****************************************************************************
@@ -31,6 +30,8 @@ enum Mode {
     BURN_BABY_BURN = 4,
     SHUTDOWN_STABLE = 5
 };
+
+const bool RESTRICT_U_AXIS=false;
 
 //most modes change by time
 //after a predefined time period we switch to the next mode
@@ -81,6 +82,10 @@ const float BETA = 0.95;  // angle (rad) that corrects for misalignment between 
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame
 const float QR_BODY_TO_IMU[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming body frame to IMU frame
 
+//IMU parameters
+const float EULER_X_OFFSET;
+const float EULER_Y_OFFSET;
+
 //rocket physical parameters
 const float THRUST=10; //TODO: make exact
 const float MOMENT_ARM=.265; //TODO: make exact
@@ -89,38 +94,38 @@ const float MOMENT_INERTIA_YY=1;//TODO: make exact
 const float MASS=1;
 
 //control constants TODO: fill these out
-vector<float>  A_VALUES {0,THRUST/MASS,0,0,0,0,
+const vector<float>  A_VALUES {0,THRUST/MASS,0,0,0,0,
                 0,0,1,0,0,0,
                 0,0,0,0,0,0,
                 0,0,0,-THRUST/MASS,0,0,
                 0,0,0,0,0,1,
                 0,0,0,0,0,0}; //dynamics matrix
-Matrix A=Matrix(6, 6, A_VALUES);        
+const Matrix A=Matrix(6, 6, A_VALUES);        
  
-vector<float> B_VALUES {THRUST/MASS, 0, 
+const vector<float> B_VALUES {THRUST/MASS, 0, 
                         0, 0,
                         -THRUST*MOMENT_ARM/MOMENT_INERTIA_YY, 0,
                         0, -THRUST/MASS,
                         0, 0,
                         0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
-Matrix B=Matrix(6, 2, B_VALUES);
+const Matrix B=Matrix(6, 2, B_VALUES);
  
-vector<float> K_VALUES {0,0,0,0,0,0,
-                        0,0,0,0,0,0}; //controller gain
-Matrix KC=Matrix(2, 6, K_VALUES);
+const vector<float> K_VALUES {-2.582,-6.9449,-.5665,0,0,0,
+                        0,0,0,2.582,-6.9449,-.5665}; //controller gain
+const Matrix KC=Matrix(2, 6, K_VALUES);
 
-vector<float> C_VALUES {1,0,0,0,0,0,
+const vector<float> C_VALUES {1,0,0,0,0,0,
                         0,0,1,0,0,0,
                         0,0,0,1,0,0,
                         0,0,0,0,0,1}; //sensor matrix
-Matrix C=Matrix(4, 6, C_VALUES);
+const Matrix C=Matrix(4, 6, C_VALUES);
  
-vector<float> L_VALUES {0, 0, 0, 0,
-                        0, 0, 0, 0,
-                        0, 0, 0, 0,
-                        0, 0, 0, 0,
-                        0, 0, 0, 0,
-                        0, 0, 0, 0}; //kalman gain
-Matrix L=Matrix(6, 4, L_VALUES);
+const vector<float> L_VALUES {13.824, 6.9192, 0, 0,
+                        6.9192, 8.3015, 0, 0,
+                        20.0079, 53.3949, 0, 0,
+                        0, 0, 13.824, -6.9192,
+                        0, 0, -6.9192, 8.3015,
+                        0, 0, -20.0079, 53.3949}; //kalman gain
+const Matrix L=Matrix(6, 4, L_VALUES);
 
 #endif
