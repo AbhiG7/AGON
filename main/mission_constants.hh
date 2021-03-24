@@ -31,16 +31,17 @@ enum Mode {
     SHUTDOWN_STABLE = 5
 };
 
-const bool RESTRICT_U_AXIS=false;
+const bool NULL_U_X_AXIS=false;
+const bool NULL_U_Y_AXIS=false;
 
 //most modes change by time
 //after a predefined time period we switch to the next mode
 //MODE TIME PERIODS
-const int STARTUP_STABLE_PERIOD=15;
-const int COUNTDOWN_PERIOD=20;
-const int FINAL_COUNTDOWN_PERIOD=7;
+const int STARTUP_STABLE_PERIOD=2; //15
+const int COUNTDOWN_PERIOD=2; //20
+const int FINAL_COUNTDOWN_PERIOD=2;
 const int PREP_TVC_PERIOD=3;
-const int BURN_BABY_BURN_PERIOD=10;
+const int BURN_BABY_BURN_PERIOD=120; //15
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -71,12 +72,12 @@ const int B_LED_PIN=0;
 const int G_LED_PIN=0;
 
 // Thrust-Vector Controller (TVC)  //TODO: modify values
-const float GEAR = 9;  // gearing ratio of the servo to the TVC
-const float SERVO_SPEED=.1;
-const float TVC_X_OFFSET = 85;  // TODO: add description
-const float TVC_Y_OFFSET = 83;  // TODO: add description
+const float GEAR = 6;  // gearing ratio of the servo to the TVC //9
+const float SERVO_SPEED=1;
+const float TVC_X_OFFSET = 100; // TODO: add description
+const float TVC_Y_OFFSET = 55;  // TODO: add description
 const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
-const float BETA = 0.95;  // angle (rad) that corrects for misalignment between body frame and TVC frame
+const float BETA = 135*DEG_2_RAD;  // angle (rad) that corrects for misalignment between body frame and TVC frame
 
 // TODO: define these quaternions based on IMU installation in rocket
 const float QR_IMU_TO_BODY[4] = {1.0, 0.0, 0.0, 0.0};  // (--) right, scalar-first, Hamiltonian quaternion transforming IMU frame to body frame

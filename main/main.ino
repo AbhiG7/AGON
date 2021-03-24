@@ -18,11 +18,11 @@ using namespace std;
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
 
-void main_display_matrix(Matrix param)
+void main_display_matrix(Matrix param, float scale)
 {
   for (int i=0; i<param.rows*param.columns; i++)
   {
-     Serial.print(param.values[i], 4);
+     Serial.print(param.values[i]*scale, 4);
      Serial.print("    ");
   }
   Serial.println(" ");
@@ -32,32 +32,37 @@ void main_display_matrix(Matrix param)
  *
  * TODO: add docstring
  */
-void send_tvc(Matrix u, Matrix * last_u, double yaw)
+Matrix send_tvc(Matrix u, Matrix last_u, float yaw)
 {
-    Matrix last_u_now= *last_u;
     //scale down angle to physical tvc limit
-    float input_magnitude=powf((pow(u.select(1, 1), 2)+pow(u.select(2, 1), 2)), 0.5);
+    float input_magnitude=powf((powf(u.select(1, 1), 2)+powf(u.select(2, 1), 2)), 0.5);
     if (input_magnitude>MAX_U)
     {
         u.scale(MAX_U/input_magnitude);
     }
+    main_display_matrix(u, RAD_2_DEG);
     //send 
-    float travel_magnitude=powf((pow(u.select(1, 1)-last_u_now.select(1, 1), 2)+pow(u.select(2, 1)-last_u_now.select(2, 1), 2)), 0.5);
-    if (travel_magnitude>SERVO_SPEED*ws.dt)
+    float travel_magnitude=powf((powf(u.select(1, 1)-last_u.select(1, 1), 2)+powf(u.select(2, 1)-last_u.select(2, 1), 2)), 0.5);
+    if (travel_magnitude>SERVO_SPEED*ws.dt/MEGA)
     {
-        u=last_u_now+(u-last_u_now).scale(SERVO_SPEED*ws.dt/travel_magnitude);
+        u=last_u+(u-last_u).scale(SERVO_SPEED*ws.dt/MEGA/travel_magnitude);
     }
-    *last_u=u;
+    main_display_matrix(u, RAD_2_DEG);
 
     //rotate input are body z axis
     float gamma=yaw+BETA;
-    vector<float> rotation_values {cos(gamma), sin(gamma), -sin(gamma), cos(gamma)};
+    vector<float> rotation_values {cos(gamma), -sin(gamma), sin(gamma), cos(gamma)};
     Matrix R=Matrix(2, 2, rotation_values);
-    u=R*u;
-
+    Matrix new_u=R*u;
+    main_display_matrix(u, RAD_2_DEG);
+    Serial.println(" ");
+    
     //convert to degrees, gear the angle, and round
-    ws.tvc_y.write(round(GEAR*RAD_2_DEG*u.select(2, 1))+TVC_Y_OFFSET);
-    ws.tvc_x.write(round(GEAR*RAD_2_DEG*u.select(1, 1))+TVC_X_OFFSET);
+    if (!NULL_U_X_AXIS)  {ws.tvc_x.write(round(GEAR*RAD_2_DEG*new_u.select(1, 1))+TVC_X_OFFSET);}
+    if (!NULL_U_Y_AXIS)  {ws.tvc_y.write(round(GEAR*RAD_2_DEG*new_u.select(2, 1))+TVC_Y_OFFSET);}
+    
+
+    return u;
 }
 
 
@@ -83,6 +88,9 @@ void setup()
     // set up Thrust-Vector Controller (TVC)
     ws.tvc_x.attach(TVC_X_PIN);  // attaches declared servo to specified pin
     ws.tvc_y.attach(TVC_Y_PIN);  // attaches declared servo to specified pin
+
+    ws.tvc_x.write(TVC_X_OFFSET);
+    ws.tvc_y.write(TVC_Y_OFFSET);
 
     //Initialize I2C communication
     Wire.begin();
@@ -185,7 +193,7 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1);//calculate input
-                //send_tvc(ws.u, &ws.last_u, ws.yaw);
+                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
                 ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
             }
             break;
@@ -201,7 +209,7 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1); //calculate input
-                //send_tvc(ws.u, &ws.last_u, ws.yaw);
+                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
                 ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation using Kalman filter
             }
             break;
@@ -216,7 +224,7 @@ void loop()
     Serial.println(ws.mode);
     
     //Serial.print(millis());
-    main_display_matrix(ws.x);
+    //main_display_matrix(ws.last_u, RAD_2_DEG);
     // TODO: add data record
     // TODO: add (somewhere else) data struct
 }
