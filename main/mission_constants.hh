@@ -31,6 +31,7 @@ enum Mode {
     SHUTDOWN_STABLE = 5
 };
 
+const bool KALMAN_ENABLED=false;
 const bool NULL_U_X_AXIS=false;
 const bool NULL_U_Y_AXIS=false;
 
@@ -41,7 +42,7 @@ const int STARTUP_STABLE_PERIOD=2; //15
 const int COUNTDOWN_PERIOD=2; //20
 const int FINAL_COUNTDOWN_PERIOD=2;
 const int PREP_TVC_PERIOD=3;
-const int BURN_BABY_BURN_PERIOD=120; //15
+const int BURN_BABY_BURN_PERIOD=300; //15
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -69,11 +70,12 @@ const int IMU_1_PIN=0;
 const int IMU_2_PIN=0;
 const int R_LED_PIN=0;
 const int B_LED_PIN=0;
-const int G_LED_PIN=0;
+const int G_LED_PIN=4;
 
 // Thrust-Vector Controller (TVC)  //TODO: modify values
-const float GEAR = 6;  // gearing ratio of the servo to the TVC //9
-const float SERVO_SPEED=1;
+const float GEAR = 9;  // gearing ratio of the servo to the TVC //9
+const float SERVO_SPEED=3;
+const float MIN_STEP=DEG_2_RAD/GEAR;
 const float TVC_X_OFFSET = 100; // TODO: add description
 const float TVC_Y_OFFSET = 55;  // TODO: add description
 const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
@@ -89,10 +91,10 @@ const float EULER_Y_OFFSET;
 
 //rocket physical parameters
 const float THRUST=10; //TODO: make exact
-const float MOMENT_ARM=.265; //TODO: make exact
-const float MOMENT_INERTIA_XX=1; //TODO: make exact
-const float MOMENT_INERTIA_YY=1;//TODO: make exact
-const float MASS=1;
+const float MOMENT_ARM=.2413; //TODO: make exact
+const float MOMENT_INERTIA_XX=.01984; //TODO: make exact
+const float MOMENT_INERTIA_YY=.01669;//TODO: make exact
+const float MASS=.611;
 
 //control constants TODO: fill these out
 const vector<float>  A_VALUES {0,THRUST/MASS,0,0,0,0,
@@ -111,8 +113,8 @@ const vector<float> B_VALUES {THRUST/MASS, 0,
                         0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
 const Matrix B=Matrix(6, 2, B_VALUES);
  
-const vector<float> K_VALUES {-2.582,-6.9449,-.5665,0,0,0,
-                        0,0,0,2.582,-6.9449,-.5665}; //controller gain
+const vector<float> K_VALUES {-.6325,-5.5608,-1.4869,0,0,0,
+                        0,0,0,.6325,-5.5608,-1.4869}; //controller gain
 const Matrix KC=Matrix(2, 6, K_VALUES);
 
 const vector<float> C_VALUES {1,0,0,0,0,0,

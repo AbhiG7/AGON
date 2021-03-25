@@ -35,32 +35,50 @@ void main_display_matrix(Matrix param, float scale)
 Matrix send_tvc(Matrix u, Matrix last_u, float yaw)
 {
     //scale down angle to physical tvc limit
-    float input_magnitude=powf((powf(u.select(1, 1), 2)+powf(u.select(2, 1), 2)), 0.5);
+    float input_magnitude=sqrtf(u.values[0]*u.values[0]+u.values[1]*u.values[1]);
     if (input_magnitude>MAX_U)
     {
         u.scale(MAX_U/input_magnitude);
     }
-    main_display_matrix(u, RAD_2_DEG);
-    //send 
-    float travel_magnitude=powf((powf(u.select(1, 1)-last_u.select(1, 1), 2)+powf(u.select(2, 1)-last_u.select(2, 1), 2)), 0.5);
-    if (travel_magnitude>SERVO_SPEED*ws.dt/MEGA)
+    //main_display_matrix(u, RAD_2_DEG);
+
+    if(NULL_U_X_AXIS){ u.values[0]=0; }
+    if(NULL_U_Y_AXIS){ u.values[1]=0; }
+    //main_display_matrix(u, RAD_2_DEG);
+
+    vector<float> rotation_values {cos(yaw), -sin(yaw), sin(yaw), cos(yaw)};
+    Matrix R=Matrix(2, 2, rotation_values);
+    u=R*u;
+    //main_display_matrix(u, RAD_2_DEG);
+
+    
+    Matrix travel=u-last_u;
+    float travel_magnitude=sqrtf(travel.values[0]*travel.values[0]+travel.values[1]*travel.values[1]);
+    /*
+    if (travel_magnitude<MIN_STEP)
     {
-        u=last_u+(u-last_u).scale(SERVO_SPEED*ws.dt/MEGA/travel_magnitude);
+      u=last_u;
     }
-    main_display_matrix(u, RAD_2_DEG);
+    else if (travel_magnitude>SERVO_SPEED*ws.dt)
+    {
+        u=last_u+travel.scale(SERVO_SPEED*ws.dt/travel_magnitude);
+    }
+    */
+    //main_display_matrix(u, RAD_2_DEG);
+    
+
+    
 
     //rotate input are body z axis
-    float gamma=yaw+BETA;
-    vector<float> rotation_values {cos(gamma), -sin(gamma), sin(gamma), cos(gamma)};
-    Matrix R=Matrix(2, 2, rotation_values);
+    rotation_values = {cos(BETA), -sin(BETA), sin(BETA), cos(BETA)};
+    R.values=rotation_values;
     Matrix new_u=R*u;
-    main_display_matrix(u, RAD_2_DEG);
     Serial.println(" ");
     
     //convert to degrees, gear the angle, and round
-    if (!NULL_U_X_AXIS)  {ws.tvc_x.write(round(GEAR*RAD_2_DEG*new_u.select(1, 1))+TVC_X_OFFSET);}
-    if (!NULL_U_Y_AXIS)  {ws.tvc_y.write(round(GEAR*RAD_2_DEG*new_u.select(2, 1))+TVC_Y_OFFSET);}
-    
+    ws.tvc_x.write(round(GEAR*RAD_2_DEG*new_u.values[0])+TVC_X_OFFSET);
+    ws.tvc_y.write(round(GEAR*RAD_2_DEG*new_u.values[1])+TVC_Y_OFFSET);
+    delay(1);
 
     return u;
 }
@@ -78,6 +96,9 @@ void setup()
 
     pinMode(0, INPUT);
     digitalWrite(0, LOW);
+
+    pinMode(G_LED_PIN, OUTPUT);
+    digitalWrite(G_LED_PIN, HIGH);
     
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
@@ -125,8 +146,9 @@ void setup()
 void loop()
 {
     // update the clock
-    ws.dt = float(micros() - ws.t_prev_cycle);  // (us) time step since previous loop
-    ws.t_prev_cycle += ws.dt;  // (us) update time for next loop
+    unsigned long current_time=micros();
+    ws.dt = float((current_time - ws.t_prev_cycle)/MEGA);  // (us) time step since previous loop
+    ws.t_prev_cycle = current_time;  // (us) update time for next loop
 
     bno055_read_euler_hrp(&ws.euler_1);
     bno055_read_euler_hrp(&ws.euler_2);
@@ -144,7 +166,8 @@ void loop()
             }
             else
             {
-                
+                ws.construct_y();
+                ws.construct_x(false);
             }
             break;
         }
@@ -159,7 +182,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                ws.construct_x(false);
             }
             break;
         }
@@ -167,9 +190,6 @@ void loop()
         {
             if (change_mode_to_prep_tvc(millis() > ws.next_mode_time))
             {
-                digitalWrite(15, HIGH);
-                delay(1);
-                digitalWrite(15, HIGH);
                 transition_to_prep_tvc();
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
@@ -177,7 +197,7 @@ void loop()
             else
             {
                 ws.construct_y();
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                ws.construct_x(false);
             }
             break;
         }
@@ -188,13 +208,14 @@ void loop()
                 transition_to_burn_baby_burn();
                 ws.next_mode_time=millis()+BURN_BABY_BURN_PERIOD*KILO_I;
                 ws.mode = BURN_BABY_BURN;
+                digitalWrite(G_LED_PIN, LOW);
             }
             else
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1);//calculate input
                 ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
-                ws.x=ws.x+(L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation only using sensors
+                ws.construct_x(false);
             }
             break;
         }
@@ -210,19 +231,20 @@ void loop()
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1); //calculate input
                 ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
-                ws.x=ws.x+(A*ws.x+B*ws.last_u+L*(ws.y-(C*ws.x))).scale(ws.dt/MEGA); //state estimation using Kalman filter
+                ws.construct_x(KALMAN_ENABLED);
             }
             break;
         }
         case (SHUTDOWN_STABLE):
         {
-            // TODO: implement this block
+            ws.construct_y();
+            ws.construct_x(false);
             break;
         }
         
     }
     Serial.println(ws.mode);
-    
+    main_display_matrix(ws.x, 1);
     //Serial.print(millis());
     //main_display_matrix(ws.last_u, RAD_2_DEG);
     // TODO: add data record

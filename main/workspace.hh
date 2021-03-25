@@ -60,11 +60,11 @@ class Workspace
         vector<float> initialize_4 {0, 0, 0, 0};
         vector<float> initialize_2 {0, 0};
         Matrix x=Matrix(6, 1, initialize_6);
+        Matrix x_raw=Matrix(6, 1, initialize_6);
         Matrix y=Matrix(4, 1, initialize_4);
+        Matrix last_y=Matrix(4, 1, initialize_4);
         Matrix u=Matrix(2, 1, initialize_2);
         Matrix last_u=Matrix(2, 1, initialize_2);
-        vector<float> y_values {0, 0, 0, 0};
-        vector<float> last_y_values {0, 0, 0, 0};
         float yaw;        
 
         // state
@@ -75,6 +75,8 @@ class Workspace
 
         void construct_y()
         {
+            last_y.values=y.values;
+
             theta_0[2]=float(euler_1.h/16.00);
             theta_1[2]=float(euler_2.h/16.00);
             theta_0[1]=float(euler_1.r/16.00);
@@ -82,12 +84,32 @@ class Workspace
             theta_0[0]=float(euler_1.p/16.00);
             theta_1[0]=float(euler_2.p/16.00);
           
-            y_values[0]=0;
-            y_values[1]=(theta_0[1]+theta_1[1])/2.0*DEG_2_RAD;
-            y_values[2]= 0;
-            y_values[3]= (theta_0[0]+theta_1[0])/2.0*DEG_2_RAD;
+            y.values[0]=0;
+            y.values[1]=(theta_0[1]+theta_1[1])/2.0*DEG_2_RAD;
+            y.values[2]= 0;
+            y.values[3]= (theta_0[0]+theta_1[0])/2.0*DEG_2_RAD;
             yaw=(theta_0[2]+theta_1[2])/2.0*DEG_2_RAD;
-            y.redefine(y_values);
+        }
+
+        void construct_x(bool kalman)
+        {
+            x_raw.values[0]=0;
+            x_raw.values[1]=y.values[1];
+            x_raw.values[2]=(y.values[1]-last_y.values[1])/dt;
+            x_raw.values[3]=0;
+            x_raw.values[4]=y.values[3];
+            x_raw.values[5]=(y.values[3]-last_y.values[3])/dt;
+
+            if (kalman)
+            {
+                x=x+(A*x+B*last_u+L*(y-(C*x))).scale(dt);
+                x.values[0]=0;
+                x.values[3]=0;
+            }
+            else
+            {
+                x.values=x_raw.values;
+            }
         }
 };
 
