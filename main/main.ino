@@ -98,7 +98,13 @@ void setup()
     digitalWrite(0, LOW);
 
     pinMode(G_LED_PIN, OUTPUT);
-    digitalWrite(G_LED_PIN, HIGH);
+    pinMode(R_LED_PIN, OUTPUT);
+    pinMode(B_LED_PIN, OUTPUT);
+
+    // LED - white, setup
+    digitalWrite(R_LED_PIN, LOW);
+    digitalWrite(G_LED_PIN, LOW);
+    digitalWrite(B_LED_PIN, LOW);
     
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
@@ -161,6 +167,12 @@ void loop()
             if (change_mode_to_countdown(millis()>ws.next_mode_time))
             {
                 transition_to_countdown();
+
+                // LED - magenta
+                digitalWrite(R_LED_PIN, LOW)
+                digitalWrite(G_LED_PIN, HIGH)
+                digitalWrite(B_LED_PIN, LOW)
+
                 ws.next_mode_time=millis()+COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = COUNTDOWN;
             }
@@ -176,6 +188,11 @@ void loop()
             if (change_mode_to_final_countdown(millis()>ws.next_mode_time))
             {
                 transition_to_final_countdown();
+                // LED - yellow
+                digitalWrite(R_LED_PIN, LOW) // Turn the LED on
+                digitalWrite(G_LED_PIN, LOW) // Turn the LED on
+                digitalWrite(B_LED_PIN, HIGH) // Turn the LED off
+
                 ws.next_mode_time=millis()+FINAL_COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = FINAL_COUNTDOWN;
             }
@@ -191,6 +208,10 @@ void loop()
             if (change_mode_to_prep_tvc(millis() > ws.next_mode_time))
             {
                 transition_to_prep_tvc();
+                // LED - red
+                digitalWrite(R_LED_PIN, LOW)
+                digitalWrite(G_LED_PIN, HIGH)
+                digitalWrite(B_LED_PIN, HIGH)
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
             }
@@ -206,9 +227,13 @@ void loop()
             if (change_mode_to_burn_baby_burn(millis()>ws.next_mode_time))
             {
                 transition_to_burn_baby_burn();
+                // LED - green
+                digitalWrite(R_LED_PIN, HIGH)
+                digitalWrite(G_LED_PIN, LOW)
+                digitalWrite(B_LED_PIN, HIGH)
                 ws.next_mode_time=millis()+BURN_BABY_BURN_PERIOD*KILO_I;
                 ws.mode = BURN_BABY_BURN;
-                digitalWrite(G_LED_PIN, LOW);
+                
             }
             else
             {
@@ -224,6 +249,18 @@ void loop()
             if (change_mode_to_shutdown_stable(millis()>ws.next_mode_time))
             {
                 transition_to_shutdown_stable();
+
+                //sets motor off - blue
+                digitalWrite(R_LED_PIN, HIGH)
+                digitalWrite(G_LED_PIN, HIGH)
+                digitalWrite(B_LED_PIN, LOW)
+
+                // Hi Chris :)
+
+                // LED - cyan
+                digitalWrite(R_LED_PIN, HIGH)
+                digitalWrite(G_LED_PIN, LOW)
+                digitalWrite(B_LED_PIN, LOW)
                 ws.mode = SHUTDOWN_STABLE;
             }
             else
