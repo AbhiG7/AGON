@@ -90,7 +90,6 @@ void setup()
     digitalWrite(0, LOW);
 
     pinMode(G_LED_PIN, OUTPUT);
-<<<<<<< Updated upstream
     pinMode(R_LED_PIN, OUTPUT);
     pinMode(B_LED_PIN, OUTPUT);
 
@@ -98,12 +97,7 @@ void setup()
     digitalWrite(R_LED_PIN, LOW);
     digitalWrite(G_LED_PIN, LOW);
     digitalWrite(B_LED_PIN, LOW);
-=======
-    digitalWrite(G_LED_PIN, HIGH);
 
-    pinMode(B_LED_PIN, OUTPUT);
-    digitalWrite(B_LED_PIN, HIGH);
->>>>>>> Stashed changes
     
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
@@ -204,9 +198,9 @@ void loop()
                 transition_to_countdown();
 
                 // LED - magenta
-                digitalWrite(R_LED_PIN, LOW)
-                digitalWrite(G_LED_PIN, HIGH)
-                digitalWrite(B_LED_PIN, LOW)
+                digitalWrite(R_LED_PIN, LOW);
+                digitalWrite(G_LED_PIN, HIGH);
+                digitalWrite(B_LED_PIN, LOW);
 
                 ws.next_mode_time=millis()+COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = COUNTDOWN;
@@ -224,9 +218,9 @@ void loop()
             {
                 transition_to_final_countdown();
                 // LED - yellow
-                digitalWrite(R_LED_PIN, LOW) // Turn the LED on
-                digitalWrite(G_LED_PIN, LOW) // Turn the LED on
-                digitalWrite(B_LED_PIN, HIGH) // Turn the LED off
+                digitalWrite(R_LED_PIN, LOW); // Turn the LED on
+                digitalWrite(G_LED_PIN, LOW); // Turn the LED on
+                digitalWrite(B_LED_PIN, HIGH); // Turn the LED off
 
                 ws.next_mode_time=millis()+FINAL_COUNTDOWN_PERIOD*KILO_I;
                 ws.mode = FINAL_COUNTDOWN;
@@ -244,12 +238,11 @@ void loop()
             {
                 transition_to_prep_tvc();
                 // LED - red
-                digitalWrite(R_LED_PIN, LOW)
-                digitalWrite(G_LED_PIN, HIGH)
-                digitalWrite(B_LED_PIN, HIGH)
+                digitalWrite(R_LED_PIN, LOW);
+                digitalWrite(G_LED_PIN, HIGH);
+                digitalWrite(B_LED_PIN, HIGH);
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
-                digitalWrite(B_LED_PIN, LOW);
             }
             else
             {
@@ -264,9 +257,9 @@ void loop()
             {
                 transition_to_burn_baby_burn();
                 // LED - green
-                digitalWrite(R_LED_PIN, HIGH)
-                digitalWrite(G_LED_PIN, LOW)
-                digitalWrite(B_LED_PIN, HIGH)
+                digitalWrite(R_LED_PIN, HIGH);
+                digitalWrite(G_LED_PIN, LOW);
+                digitalWrite(B_LED_PIN, HIGH);
                 ws.next_mode_time=millis()+BURN_BABY_BURN_PERIOD*KILO_I;
                 ws.mode = BURN_BABY_BURN;
                 
@@ -287,16 +280,16 @@ void loop()
                 transition_to_shutdown_stable();
 
                 //sets motor off - blue
-                digitalWrite(R_LED_PIN, HIGH)
-                digitalWrite(G_LED_PIN, HIGH)
-                digitalWrite(B_LED_PIN, LOW)
+                digitalWrite(R_LED_PIN, HIGH);
+                digitalWrite(G_LED_PIN, HIGH);
+                digitalWrite(B_LED_PIN, LOW);
 
                 // Hi Chris :)
 
                 // LED - cyan
-                digitalWrite(R_LED_PIN, HIGH)
-                digitalWrite(G_LED_PIN, LOW)
-                digitalWrite(B_LED_PIN, LOW)
+                digitalWrite(R_LED_PIN, HIGH);
+                digitalWrite(G_LED_PIN, LOW);
+                digitalWrite(B_LED_PIN, LOW);
                 ws.mode = SHUTDOWN_STABLE;
             }
             else
@@ -317,32 +310,6 @@ void loop()
         
     }
 
-    bool zero=true;
-    for (int i=0; i<ws.x.columns*ws.x.rows; i++)
-    {
-      if (zero)
-      {
-        zero=ws.x.values[i]==0;
-      }
-    }
-    if (zero)
-    {
-      digitalWrite(G_LED_PIN, LOW);
-    }
-    else
-    {
-      digitalWrite(G_LED_PIN, HIGH);
-    }
-    /*
-  if (!(ws.last_u.values[0]==0 && ws.last_u.values[1]==0))
-                {
-                  digitalWrite(G_LED_PIN, LOW);
-                }
-                else
-                {
-                  digitalWrite(G_LED_PIN, HIGH);
-                }
-                */
     Serial.println(ws.mode);
     main_display_matrix(ws.x, 1);
     //Serial.print(millis());
