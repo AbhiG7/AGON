@@ -31,6 +31,8 @@ enum Mode {
     SHUTDOWN_STABLE = 5
 };
 
+const bool TVC_TEST=false;
+const bool TVC_ENABLE=true;
 const bool KALMAN_ENABLED=false;
 const bool NULL_U_X_AXIS=false;
 const bool NULL_U_Y_AXIS=false;
@@ -69,15 +71,17 @@ const int FLASH_CS_PIN = 0;
 const int IMU_1_PIN=0;
 const int IMU_2_PIN=0;
 const int R_LED_PIN=0;
-const int B_LED_PIN=0;
-const int G_LED_PIN=4;
+const int B_LED_PIN=4;
+const int G_LED_PIN=6;
 
 // Thrust-Vector Controller (TVC)  //TODO: modify values
-const float GEAR = 9;  // gearing ratio of the servo to the TVC //9
-const float SERVO_SPEED=3;
+const float GEAR = 7.5;  // gearing ratio of the servo to the TVC //9
+const float SERVO_SPEED=1.5;
+const float MAX_U_DELTA=2;
+const float TVC_LOOP=5;
 const float MIN_STEP=DEG_2_RAD/GEAR;
-const float TVC_X_OFFSET = 100; // TODO: add description
-const float TVC_Y_OFFSET = 55;  // TODO: add description
+const float TVC_X_OFFSET = 107.5; // TODO: add description
+const float TVC_Y_OFFSET = 67.5;  // TODO: add description
 const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
 const float BETA = 135*DEG_2_RAD;  // angle (rad) that corrects for misalignment between body frame and TVC frame
 

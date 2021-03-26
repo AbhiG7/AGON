@@ -32,7 +32,7 @@ void main_display_matrix(Matrix param, float scale)
  *
  * TODO: add docstring
  */
-Matrix send_tvc(Matrix u, Matrix last_u, float yaw)
+Matrix send_tvc(Matrix u, Matrix last_u, float yaw, Servo x, Servo y)
 {
     //scale down angle to physical tvc limit
     float input_magnitude=sqrtf(u.values[0]*u.values[0]+u.values[1]*u.values[1]);
@@ -40,44 +40,36 @@ Matrix send_tvc(Matrix u, Matrix last_u, float yaw)
     {
         u.scale(MAX_U/input_magnitude);
     }
-    //main_display_matrix(u, RAD_2_DEG);
 
     if(NULL_U_X_AXIS){ u.values[0]=0; }
     if(NULL_U_Y_AXIS){ u.values[1]=0; }
-    //main_display_matrix(u, RAD_2_DEG);
 
-    vector<float> rotation_values {cos(yaw), -sin(yaw), sin(yaw), cos(yaw)};
+    vector<float> rotation_values {cos(yaw+BETA), -sin(yaw+BETA), sin(yaw+BETA), cos(yaw+BETA)};
     Matrix R=Matrix(2, 2, rotation_values);
     u=R*u;
-    //main_display_matrix(u, RAD_2_DEG);
-
-    
-    Matrix travel=u-last_u;
-    float travel_magnitude=sqrtf(travel.values[0]*travel.values[0]+travel.values[1]*travel.values[1]);
-    /*
-    if (travel_magnitude<MIN_STEP)
+    u.values[0]=GEAR*RAD_2_DEG*u.values[0]+TVC_X_OFFSET;
+    u.values[1]=GEAR*RAD_2_DEG*u.values[1]+TVC_Y_OFFSET;
+    float delta=u.values[0]-last_u.values[0];
+    if (abs(delta)>MAX_U_DELTA)
     {
-      u=last_u;
+      u.values[0]=last_u.values[0]+delta/abs(delta)*MAX_U_DELTA;
     }
-    else if (travel_magnitude>SERVO_SPEED*ws.dt)
+    delta=u.values[1]-last_u.values[1];
+    if (abs(delta)>MAX_U_DELTA)
     {
-        u=last_u+travel.scale(SERVO_SPEED*ws.dt/travel_magnitude);
+      u.values[1]=last_u.values[1]+delta/abs(delta)*MAX_U_DELTA;
     }
-    */
-    //main_display_matrix(u, RAD_2_DEG);
-    
+    Serial.print(u.values[0]);
+    Serial.print("    ");
+    Serial.println(u.values[1]);
 
-    
-
-    //rotate input are body z axis
-    rotation_values = {cos(BETA), -sin(BETA), sin(BETA), cos(BETA)};
-    R.values=rotation_values;
-    Matrix new_u=R*u;
-    Serial.println(" ");
-    
     //convert to degrees, gear the angle, and round
-    ws.tvc_x.write(round(GEAR*RAD_2_DEG*new_u.values[0])+TVC_X_OFFSET);
-    ws.tvc_y.write(round(GEAR*RAD_2_DEG*new_u.values[1])+TVC_Y_OFFSET);
+    if (TVC_ENABLE)
+    {
+      
+      x.write(round(u.values[0]));
+      y.write(round(u.values[1]));
+    }
     delay(1);
 
     return u;
@@ -98,6 +90,7 @@ void setup()
     digitalWrite(0, LOW);
 
     pinMode(G_LED_PIN, OUTPUT);
+<<<<<<< Updated upstream
     pinMode(R_LED_PIN, OUTPUT);
     pinMode(B_LED_PIN, OUTPUT);
 
@@ -105,6 +98,12 @@ void setup()
     digitalWrite(R_LED_PIN, LOW);
     digitalWrite(G_LED_PIN, LOW);
     digitalWrite(B_LED_PIN, LOW);
+=======
+    digitalWrite(G_LED_PIN, HIGH);
+
+    pinMode(B_LED_PIN, OUTPUT);
+    digitalWrite(B_LED_PIN, HIGH);
+>>>>>>> Stashed changes
     
     //TODO flash setup
     //flash.begin(9600);  // begins flash chip at specified baud rate
@@ -113,14 +112,23 @@ void setup()
     ws.mode = STARTUP_STABLE;
 
     // set up Thrust-Vector Controller (TVC)
-    ws.tvc_x.attach(TVC_X_PIN);  // attaches declared servo to specified pin
-    ws.tvc_y.attach(TVC_Y_PIN);  // attaches declared servo to specified pin
-
-    ws.tvc_x.write(TVC_X_OFFSET);
-    ws.tvc_y.write(TVC_Y_OFFSET);
+    if (TVC_ENABLE || TVC_TEST)
+    {
+      ws.tvc_x.attach(TVC_X_PIN);  // attaches declared servo to specified pin
+      ws.tvc_y.attach(TVC_Y_PIN);  // attaches declared servo to specified pin
+      ws.tvc_x.write(TVC_X_OFFSET);
+      ws.tvc_y.write(TVC_Y_OFFSET);
+    }
 
     //Initialize I2C communication
-    Wire.begin();
+    // join I2C bus (I2Cdev library doesn't do this automatically)
+    #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
+        Wire.begin();
+    #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
+        Fastwire::setup(400, true);
+    #endif
+
+    delay(1000);
 
     //Initialization of the BNO055
     BNO_Init(&ws.bno_1); //Assigning the structure to hold information about the device
@@ -138,6 +146,33 @@ void setup()
     bno055_set_operation_mode(OPERATION_MODE_NDOF);
 
     delay(1);
+
+    if(TVC_TEST)
+    {
+      Matrix test_u=Matrix(2, 1, ws.initialize_2);
+      vector<float> test_us {MAX_U,-MAX_U,MAX_U, -MAX_U, 0};
+      
+      for (int i=0; i<10; i++)
+      {
+        if (i<5)
+        {
+          test_u.values[0]=test_us[i];
+          test_u.values[1]=0;
+        }
+        else
+        {
+          test_u.values[1]=test_us[i-5];
+          test_u.values[0]=0;
+        }
+        
+        vector<float> test_rotation {cos(BETA), -sin(BETA), sin(BETA), cos(BETA)};
+        Matrix test_R=Matrix(2, 2, test_rotation);
+        test_u=test_R*test_u;
+        ws.tvc_x.write(round(GEAR*RAD_2_DEG*test_u.values[0])+TVC_X_OFFSET);
+        ws.tvc_y.write(round(GEAR*RAD_2_DEG*test_u.values[1])+TVC_Y_OFFSET);
+        delay(1000);
+      }
+    }
 
     ws.next_mode_time=millis()+STARTUP_STABLE_PERIOD*KILO_I;
 }
@@ -214,6 +249,7 @@ void loop()
                 digitalWrite(B_LED_PIN, HIGH)
                 ws.next_mode_time=millis()+PREP_TVC_PERIOD*KILO_I;
                 ws.mode = PREP_TVC;
+                digitalWrite(B_LED_PIN, LOW);
             }
             else
             {
@@ -239,7 +275,7 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1);//calculate input
-                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
+                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw, ws.tvc_x, ws.tvc_y);
                 ws.construct_x(false);
             }
             break;
@@ -267,7 +303,7 @@ void loop()
             {
                 ws.construct_y();
                 ws.u=(KC*ws.x).scale(-1); //calculate input
-                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw);
+                ws.last_u=send_tvc(ws.u, ws.last_u, ws.yaw, ws.tvc_x, ws.tvc_y);
                 ws.construct_x(KALMAN_ENABLED);
             }
             break;
@@ -280,6 +316,33 @@ void loop()
         }
         
     }
+
+    bool zero=true;
+    for (int i=0; i<ws.x.columns*ws.x.rows; i++)
+    {
+      if (zero)
+      {
+        zero=ws.x.values[i]==0;
+      }
+    }
+    if (zero)
+    {
+      digitalWrite(G_LED_PIN, LOW);
+    }
+    else
+    {
+      digitalWrite(G_LED_PIN, HIGH);
+    }
+    /*
+  if (!(ws.last_u.values[0]==0 && ws.last_u.values[1]==0))
+                {
+                  digitalWrite(G_LED_PIN, LOW);
+                }
+                else
+                {
+                  digitalWrite(G_LED_PIN, HIGH);
+                }
+                */
     Serial.println(ws.mode);
     main_display_matrix(ws.x, 1);
     //Serial.print(millis());
