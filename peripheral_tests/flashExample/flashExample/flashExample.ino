@@ -20,13 +20,27 @@ void writeDat();
 void readDatf();
 
 void setup(){
-  Serial.println("Init Flash");
+  Serial.begin(9600);
+  int t1 = micros();
   flash.begin(9600);
+  Serial.println("Init Flash");
   flash.eraseChip();
+  Serial.println("Init Flash");
+  Serial.print("Time elapsed: ");
+  Serial.println(micros()-t1);
+  t1 = micros();
   //seq();
   getAddresses();
+  Serial.print("Time elapsed: ");
+  Serial.println(micros()-t1);
+  t1 = micros();
   writeDat();
+  Serial.print("Time elapsed: ");
+  Serial.println(micros()-t1);
+  t1 = micros();
   readDatf();
+  Serial.print("Time elapsed: ");
+  Serial.println(micros()-t1);
   
 }
 
@@ -69,10 +83,16 @@ void writeDat(){
 }
 
 void readDatf(){
-  for (uint8_t i = 0; i < 2; i++) {
+  Serial.println("\n\n array 1:");
+  for (uint8_t i = 0; i < arrayLen(floatAddr1); i++) {
     readDat=flash.readFloat(floatAddr1[i]);
     Serial.println(readDat);
-    }
+  }
+  Serial.println("\n\n array 2:");
+  for (uint8_t i = 0; i < arrayLen(floatAddr2); i++) {
+    readDat=flash.readFloat(floatAddr2[i]);
+    Serial.println(readDat);
+  }
   }
 
 void seq(){

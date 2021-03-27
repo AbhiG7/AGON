@@ -38,6 +38,7 @@ Serial.println("Looking for the SPI flash chip. Standby...");
     Serial.println(printBuffer);
     Serial.println();
     Serial.println();
+    Serial.println(flash.getCapacity());
     delay(1000);
   }
   else{
