@@ -117,8 +117,8 @@ const vector<float> B_VALUES {THRUST/MASS, 0,
                         0, -THRUST*MOMENT_ARM/MOMENT_INERTIA_XX}; //input matrix
 const Matrix B=Matrix(6, 2, B_VALUES);
  
-const vector<float> K_VALUES {-.6325,-5.5608,-1.4869,0,0,0,
-                        0,0,0,.6325,-5.5608,-1.4869}; //controller gain
+const vector<float> K_VALUES {-.6325,-5.2871,-1.3423,0,0,0,
+                        0,0,0,.6325,-5.2871,-1.3423}; //controller gain
 const Matrix KC=Matrix(2, 6, K_VALUES);
 
 const vector<float> C_VALUES {1,0,0,0,0,0,

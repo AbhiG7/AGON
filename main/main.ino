@@ -314,6 +314,9 @@ void loop()
     main_display_matrix(ws.x, 1);
     //Serial.print(millis());
     //main_display_matrix(ws.last_u, RAD_2_DEG);
+
+    ws.construct_data();
+
     // TODO: add data record
     // TODO: add (somewhere else) data struct
 }

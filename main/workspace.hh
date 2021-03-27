@@ -10,6 +10,18 @@
 #include <vector>
 using namespace std;
 
+struct loop_data
+{
+    int mode;
+    long int time;
+    float dt;
+    vector<float> x(6, 0);
+    vector<float> y(4, 0);
+    vector<float> u(2, 0);
+    float yaw;
+    float theta_raw_0 [3];
+    float theta_raw_1 [3];
+}
 
 /* Workspace
  *
@@ -39,6 +51,7 @@ class Workspace
         unsigned long calibrate_time = 0;  //momment main loop starts
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         float dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
+        struct loop_data current_data;
 
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
@@ -53,6 +66,7 @@ class Workspace
         // Servos
         Servo tvc_x;  // servo that actuates TVC around x body axis
         Servo tvc_y;  // servo that actuates TVC around x body axis
+        bool tvc_alternate=false; //
 
         //control vectors
         // set up controller
@@ -110,6 +124,19 @@ class Workspace
             {
                 x.values=x_raw.values;
             }
+        }
+
+        void construct_data()
+        {
+            current_data.dt=dt;
+            current_data.mode=mode;
+            current_data.theta_raw_0=theta_0;
+            current_data.theta_raw_1=theta_1;
+            current_data.x=x;
+            current_data.y=y;
+            current_data.u=last_u;
+            current_data.yaw=yaw;
+            current_data.time=t_prev_cycle;
         }
 };
 
