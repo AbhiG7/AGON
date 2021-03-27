@@ -7,21 +7,9 @@
 #include "matrix.hh"
 #include <Servo.h>  // TODO: what's this?
 #include "Wire.h"  // Arduino library
+#include "loop_data.hh"
 #include <vector>
 using namespace std;
-
-struct loop_data
-{
-    int mode;
-    long int time;
-    float dt;
-    vector<float> x(6, 0);
-    vector<float> y(4, 0);
-    vector<float> u(2, 0);
-    float yaw;
-    float theta_raw_0 [3];
-    float theta_raw_1 [3];
-}
 
 /* Workspace
  *
@@ -56,8 +44,8 @@ class Workspace
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
         float a_1[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
-        float theta_0[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
-        float theta_1[3] = {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        vector<float> theta_0 {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
+        vector<float> theta_1 {0.0, 0.0, 0.0};  // (rad/s) angular velocity, used for storing sensor measurements
 
         // flight mode
         Mode mode = STARTUP_STABLE;
@@ -140,4 +128,4 @@ class Workspace
         }
 };
 
-#endif  // __WORKSPACE_HH__
+#endif

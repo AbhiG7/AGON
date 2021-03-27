@@ -7,6 +7,7 @@
 #include <Servo.h>
 #include "matrix.hh"
 #include "mission_constants.hh"
+#include "loop_data.hh"
 #include <cmath>
 #include <vector>
 using namespace std;
