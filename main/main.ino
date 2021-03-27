@@ -13,8 +13,8 @@
 using namespace std;
 
 // declare flash chip 
-//#define CHIPSIZE MB64
-//SPIFlash flash(1);
+#define CHIPSIZE MB64
+SPIFlash flash(1);
 
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
@@ -99,9 +99,12 @@ void setup()
     digitalWrite(G_LED_PIN, LOW);
     digitalWrite(B_LED_PIN, LOW);
 
-    
-    //TODO flash setup
-    //flash.begin(9600);  // begins flash chip at specified baud rate
+    // flash setup
+    ws.loop_data_size = sizeof(ws.current_data); //determine size of loop data object
+    flash.begin(9600);  // begins flash chip at specified baud rate
+    if (WIPE_FLASH){flash.eraseChip();} // erase chip 
+    ws._lastAddress = flash.getAddress(sizeof(uint32_t)); //get fist last address
+    flash.writeAnything(0, ws._lastAddress); //write last address to 0
 
     // set initial mission mode
     ws.mode = STARTUP_STABLE;
@@ -308,7 +311,6 @@ void loop()
             ws.construct_x(false);
             break;
         }
-        
     }
 
     Serial.println(ws.mode);
@@ -316,8 +318,15 @@ void loop()
     //Serial.print(millis());
     //main_display_matrix(ws.last_u, RAD_2_DEG);
 
-    ws.construct_data();
+    ws.construct_data(); //write current state data to log struct
+    ws._lastAddress = flash.getAddress(ws.loop_data_size);
+    if(!flash.writeAnything(ws._lastAddress, ws.current_data)){
+        Serial.println("Write to flash failed");
+    } else {
+        if(!flash.writeAnything(0, ws._lastAddress)){  //write last address to 0
+            Serial.println("Write last address to flash failed");
+        }
+        Serial.println("write successful!");
+    }
 
-    // TODO: add data record
-    // TODO: add (somewhere else) data struct
 }

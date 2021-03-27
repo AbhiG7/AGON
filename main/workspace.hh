@@ -40,6 +40,8 @@ class Workspace
         unsigned long t_prev_cycle = 0;  // (us) contains the time of the previous cycle at the start of each loop
         float dt = 0;  // (us) used to store time difference between t_prev_cycle and return of micros() at the start of each loop
         struct loop_data current_data;
+        int loop_data_size;
+        uint32_t _lastAddress;
 
         // sensor measurements
         float a_0[3] = {0.0, 0.0, 0.0};  // (m/s^2) linear acceleration, used for storing sensor measurements
@@ -113,7 +115,7 @@ class Workspace
                 x.values=x_raw.values;
             }
         }
-
+        
         void construct_data()
         {
             current_data.dt=dt;
@@ -124,8 +126,9 @@ class Workspace
             current_data.y=y;
             current_data.u=last_u;
             current_data.yaw=yaw;
-            current_data.time=t_prev_cycle;
+            current_data.timestamp=t_prev_cycle;
         }
+        
 };
 
 #endif
