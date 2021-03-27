@@ -56,7 +56,6 @@ class Workspace
         // Servos
         Servo tvc_x;  // servo that actuates TVC around x body axis
         Servo tvc_y;  // servo that actuates TVC around x body axis
-        bool tvc_alternate=false; //
 
         //control vectors
         // set up controller

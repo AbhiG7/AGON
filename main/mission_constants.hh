@@ -45,7 +45,7 @@ const int STARTUP_STABLE_PERIOD=2; //15
 const int COUNTDOWN_PERIOD=2; //20
 const int FINAL_COUNTDOWN_PERIOD=2;
 const int PREP_TVC_PERIOD=3;
-const int BURN_BABY_BURN_PERIOD=300; //15
+const int BURN_BABY_BURN_PERIOD=15; //15
 
 //*****************************************************************************
 //                                  HARDWARE
@@ -77,10 +77,7 @@ const int G_LED_PIN=6;
 
 // Thrust-Vector Controller (TVC)  //TODO: modify values
 const float GEAR = 5;  // gearing ratio of the servo to the TVC //9
-const float SERVO_SPEED=1.5;
 const float MAX_U_DELTA=5;
-const float TVC_LOOP=5;
-const float MIN_STEP=DEG_2_RAD/GEAR;
 const float TVC_X_OFFSET = 107.5; // TODO: add description
 const float TVC_Y_OFFSET = 67.5;  // TODO: add description
 const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle

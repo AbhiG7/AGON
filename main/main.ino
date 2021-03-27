@@ -50,6 +50,7 @@ Matrix send_tvc(Matrix u, Matrix last_u, float yaw, Servo x, Servo y)
     u=R*u;
     u.values[0]=GEAR*RAD_2_DEG*u.values[0]+TVC_X_OFFSET;
     u.values[1]=GEAR*RAD_2_DEG*u.values[1]+TVC_Y_OFFSET;
+    
     float delta=u.values[0]-last_u.values[0];
     if (abs(delta)>MAX_U_DELTA)
     {
@@ -67,9 +68,16 @@ Matrix send_tvc(Matrix u, Matrix last_u, float yaw, Servo x, Servo y)
     //convert to degrees, gear the angle, and round
     if (TVC_ENABLE)
     {
-      
-      x.write(round(u.values[0]));
-      y.write(round(u.values[1]));
+      if(random(100)>50)
+      {
+        x.write(round(u.values[0]));
+        y.write(round(u.values[1]));
+      }
+      else
+      {
+        y.write(round(u.values[1]));
+        x.write(round(u.values[0]));
+      }
     }
     delay(1);
 
@@ -101,10 +109,6 @@ void setup()
 
     // flash setup
     ws.loop_data_size = sizeof(ws.current_data); //determine size of loop data object
-    flash.begin(9600);  // begins flash chip at specified baud rate
-    if (WIPE_FLASH){flash.eraseChip();} // erase chip 
-    ws._lastAddress = flash.getAddress(sizeof(uint32_t)); //get fist last address
-    flash.writeAnything(0, ws._lastAddress); //write last address to 0
 
     // set initial mission mode
     ws.mode = STARTUP_STABLE;
@@ -315,18 +319,6 @@ void loop()
 
     Serial.println(ws.mode);
     main_display_matrix(ws.x, 1);
-    //Serial.print(millis());
-    //main_display_matrix(ws.last_u, RAD_2_DEG);
-
     ws.construct_data(); //write current state data to log struct
-    ws._lastAddress = flash.getAddress(ws.loop_data_size);
-    if(!flash.writeAnything(ws._lastAddress, ws.current_data)){
-        Serial.println("Write to flash failed");
-    } else {
-        if(!flash.writeAnything(0, ws._lastAddress)){  //write last address to 0
-            Serial.println("Write last address to flash failed");
-        }
-        Serial.println("write successful!");
-    }
 
 }
