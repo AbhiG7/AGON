@@ -32,7 +32,7 @@ enum Mode {
 };
 
 const bool TVC_TEST=false;
-const bool TVC_ENABLE=false;
+const bool TVC_ENABLE=true;
 const bool KALMAN_ENABLED=false;
 const bool NULL_U_X_AXIS=false;
 const bool NULL_U_Y_AXIS=false;
