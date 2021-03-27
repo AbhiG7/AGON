@@ -41,11 +41,11 @@ const bool WIPE_FLASH=true;
 //most modes change by time
 //after a predefined time period we switch to the next mode
 //MODE TIME PERIODS
-const int STARTUP_STABLE_PERIOD=2; //15
-const int COUNTDOWN_PERIOD=2; //20
-const int FINAL_COUNTDOWN_PERIOD=2;
+const int STARTUP_STABLE_PERIOD=15; //15
+const int COUNTDOWN_PERIOD=20; //20
+const int FINAL_COUNTDOWN_PERIOD=7;
 const int PREP_TVC_PERIOD=3;
-const int BURN_BABY_BURN_PERIOD=15; //15
+const int BURN_BABY_BURN_PERIOD=10; //10
 
 //*****************************************************************************
 //                                  HARDWARE
