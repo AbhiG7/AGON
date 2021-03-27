@@ -1,6 +1,8 @@
 #include "I2Cdev.h"
 #include "moding.hh"
 #include <SPIFlash.h>  // flash chip library
+#include <SD.h>  // SD card library
+#include <SPI.h> // serial communication library (SD card)
 #include "BNO055_support.h"		//Contains the bridge code between the API and Arduino
 #include <Wire.h>
 #include "workspace.hh"  // variable storage
@@ -16,6 +18,9 @@ using namespace std;
 #define CHIPSIZE MB64
 SPIFlash flash(1);
 
+// declare SD consts
+File logFile; // log file
+
 // (--) instance of workspace class storing all the variables used in the loop
 Workspace ws;
 
@@ -27,6 +32,18 @@ void main_display_matrix(Matrix param, float scale)
      Serial.print("    ");
   }
   Serial.println(" ");
+}
+
+String main_display_matrix(Matrix param)
+{
+  String result="";
+  int n=param.rows*param.columns;
+  for (int i=0; i<n; i++)
+  {
+     result+=param.values[i];
+     if (i<n-1) { result+=","; }
+  }
+  return result;
 }
 
 /* tvc_abs
@@ -106,6 +123,19 @@ void setup()
     digitalWrite(R_LED_PIN, LOW);
     digitalWrite(G_LED_PIN, LOW);
     digitalWrite(B_LED_PIN, LOW);
+
+    // initialize SD
+    SD.begin(SD_CS_PIN);
+    // create log file, begin writing
+    int logNumber = 0;
+    while(SD.exists(("log_"+ String(logNumber) +".csv").c_str())) {
+        logNumber++;
+    }
+    String filename = ("log_"+ String(logNumber) +".csv");
+    logFile = SD.open(filename.c_str(), FILE_WRITE);
+    logFile.println("Timestamp,Mode,dt,x,,,,,,u,,y,,,,yaw,theta_0,,,theta_1,,");
+    
+
 
     // flash setup
     ws.loop_data_size = sizeof(ws.current_data); //determine size of loop data object
@@ -292,7 +322,8 @@ void loop()
                 digitalWrite(G_LED_PIN, HIGH);
                 digitalWrite(B_LED_PIN, LOW);
 
-                // Hi Chris :)
+                // close log file
+                logFile.close();
 
                 // LED - cyan
                 digitalWrite(R_LED_PIN, HIGH);
@@ -310,15 +341,41 @@ void loop()
             break;
         }
         case (SHUTDOWN_STABLE):
-        {
-            ws.construct_y();
-            ws.construct_x(false);
+        {        
             break;
         }
     }
 
-    Serial.println(ws.mode);
-    main_display_matrix(ws.x, 1);
+    //Serial.println(ws.mode);
+    //main_display_matrix(ws.x, 1);
     ws.construct_data(); //write current state data to log struct
+    long int t=micros();
+    logFile.print(ws.current_data.timestamp);
+    logFile.print(',');
+    logFile.print(ws.current_data.mode);
+    logFile.print(',');
+    logFile.print(ws.current_data.dt);
+    logFile.print(',');
+    logFile.print(main_display_matrix(ws.current_data.x));
+    logFile.print(',');
+    logFile.print(main_display_matrix(ws.current_data.u));
+    logFile.print(',');
+    logFile.print(main_display_matrix(ws.current_data.y));
+    logFile.print(',');
+    logFile.print(ws.current_data.yaw);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_0[0]);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_0[1]);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_0[2]);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_1[0]);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_1[1]);
+    logFile.print(',');
+    logFile.print(ws.current_data.theta_raw_1[2]);
+    logFile.println();
+    Serial.println(micros()-t);
 
 }

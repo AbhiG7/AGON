@@ -32,7 +32,7 @@ enum Mode {
 };
 
 const bool TVC_TEST=false;
-const bool TVC_ENABLE=true;
+const bool TVC_ENABLE=false;
 const bool KALMAN_ENABLED=false;
 const bool NULL_U_X_AXIS=false;
 const bool NULL_U_Y_AXIS=false;
@@ -67,7 +67,7 @@ const float LSB_ANGULAR = 131.0;  // (deg/s/count) note documentation gives inco
 //PINOUTS
 const int TVC_X_PIN = 20;  // pin for the servo that actuates TVC around x body axis
 const int TVC_Y_PIN = 21;  // pin for the servo that actuates TVC around y body axis
-const int SD_CS_PIN = 0;
+const int SD_CS_PIN = 10;  // SD Card (Adafruit MicroSD card breakout board+)
 const int FLASH_CS_PIN = 0;
 const int IMU_1_PIN=0;
 const int IMU_2_PIN=0;
