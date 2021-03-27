@@ -78,8 +78,8 @@ const int G_LED_PIN=6;
 // Thrust-Vector Controller (TVC)  //TODO: modify values
 const float GEAR = 5;  // gearing ratio of the servo to the TVC //9
 const float MAX_U_DELTA=5;
-const float TVC_X_OFFSET = 107.5; // TODO: add description
-const float TVC_Y_OFFSET = 67.5;  // TODO: add description
+const float TVC_X_OFFSET = 110; // TODO: add description
+const float TVC_Y_OFFSET = 65;  // TODO: add description
 const float MAX_U= 5*DEG_2_RAD;  //maximum gimbal angle
 const float BETA = 135*DEG_2_RAD;  // angle (rad) that corrects for misalignment between body frame and TVC frame
 
